@@ -1,70 +1,69 @@
 const logger = require('../utils/logger');
 
-// Error logger to file
-const logErrorToFile = (error, req) => {
-  const logEntry = {
-    method: req.method,
+// Error handler middleware
+const errorHandler = (err, req, res, next) => {
+  let error = { ...err };
+  error.message = err.message;
+
+  // Log error using logger service
+  logger.error(`Error ${err.message}`, {
+    stack: err.stack,
     url: req.url,
-    status: error.status || 500,
-    message: error.message,
-    stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+    method: req.method,
     ip: req.ip,
     userAgent: req.get('User-Agent'),
     userId: req.user?._id
-  };
-  
-  logger.error('HTTP Error', logEntry);
-};
+  });
 
-// Error handler middleware
-module.exports = (err, req, res, next) => {
-  // Log errors with status >= 400
-  if (err.status >= 400 || !err.status) {
-    logErrorToFile(err, req);
-  }
-  
-  // Mongoose validation error
-  if (err.name === 'ValidationError') {
-    return res.status(400).json({
-      message: 'Validation error',
-      errors: Object.values(err.errors).map(e => e.message)
-    });
-  }
-  
-  // Mongoose duplicate key error
-  if (err.code === 11000) {
-    const field = Object.keys(err.keyPattern)[0];
-    return res.status(400).json({
-      message: `${field} already exists`
-    });
-  }
-  
   // JWT errors
   if (err.name === 'JsonWebTokenError') {
     return res.status(401).json({
+      success: false,
       message: 'Invalid token'
     });
   }
   
   if (err.name === 'TokenExpiredError') {
     return res.status(401).json({
+      success: false,
       message: 'Token expired'
     });
   }
-  
-  // Cast error (invalid MongoDB ID)
+
+  // Mongoose bad ObjectId
   if (err.name === 'CastError') {
     return res.status(400).json({
+      success: false,
       message: 'Invalid ID format'
     });
   }
+
+  // Mongoose duplicate key
+  if (err.code === 11000) {
+    return res.status(400).json({
+      success: false,
+      message: 'Duplicate field value entered'
+    });
+  }
+
+  // Mongoose validation error
+  if (err.name === 'ValidationError') {
+    const message = Object.values(err.errors).map(val => val.message);
+    return res.status(400).json({
+      success: false,
+      message: message.join(', ')
+    });
+  }
   
-  // Default error
-  const status = err.status || 500;
+  // Default error response
+  const status = err.status || err.statusCode || 500;
   const message = err.message || 'Internal server error';
   
   res.status(status).json({
+    success: false,
     message,
     ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
   });
 };
+
+module.exports = errorHandler;

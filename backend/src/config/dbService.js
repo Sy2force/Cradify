@@ -5,6 +5,7 @@ class DatabaseService {
     this.environment = process.env.DB_ENVIRONMENT || 'local';
     this.localUri = process.env.MONGODB_URI_LOCAL || 'mongodb://localhost:27017/cardify';
     this.atlasUri = process.env.MONGODB_URI_ATLAS;
+    this.productionUri = process.env.MONGODB_URI; // Standard Render/Heroku env var
   }
 
   /**
@@ -12,12 +13,18 @@ class DatabaseService {
    * @returns {string} MongoDB connection URI
    */
   getConnectionUri() {
+    // Production environment (Render/Heroku)
+    if (process.env.NODE_ENV === 'production' && this.productionUri) {
+      return this.productionUri;
+    }
+    
+    // Development/testing environments
     if (this.environment === 'atlas' && this.atlasUri) {
-      // Using MongoDB Atlas connection
       return this.atlasUri;
-    } else {
-      // Using local MongoDB connection
+    } else if (this.localUri) {
       return this.localUri;
+    } else {
+      throw new Error('No valid MongoDB URI found. Please configure MONGODB_URI, MONGODB_URI_LOCAL or MONGODB_URI_ATLAS');
     }
   }
 

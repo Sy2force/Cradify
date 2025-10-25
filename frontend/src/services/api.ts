@@ -76,9 +76,11 @@ export const authService = {
       }
       
       return response.data;
-    } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: { message?: string } } };
-      throw new Error(axiosError.response?.data?.message || 'Erreur lors de la connexion');
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data?.message || 'Erreur lors de la connexion');
+      }
+      throw new Error('Erreur lors de la connexion');
     }
   },
 
@@ -95,9 +97,11 @@ export const authService = {
       }
       
       return response.data;
-    } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: { message?: string } } };
-      throw new Error(axiosError.response?.data?.message || 'Erreur lors de l\'inscription');
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data?.message || 'Erreur lors de l\'inscription');
+      }
+      throw new Error('Erreur lors de l\'inscription');
     }
   },
 
@@ -136,9 +140,11 @@ export const userService = {
     try {
       const response: AxiosResponse<UsersResponse> = await api.get('/users');
       return response.data.users;
-    } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: { message?: string } } };
-      throw new Error(axiosError.response?.data?.message || 'Erreur lors de la récupération des utilisateurs');
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data?.message || 'Erreur lors de la récupération des utilisateurs');
+      }
+      throw new Error('Erreur lors de la récupération des utilisateurs');
     }
   },
 
@@ -147,9 +153,11 @@ export const userService = {
     try {
       const response: AxiosResponse<{ user: User }> = await api.get(`/users/${id}`);
       return response.data.user;
-    } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: { message?: string } } };
-      throw new Error(axiosError.response?.data?.message || 'Erreur lors de la récupération de l\'utilisateur');
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data?.message || 'Erreur lors de la récupération de l\'utilisateur');
+      }
+      throw new Error('Erreur lors de la récupération de l\'utilisateur');
     }
   },
 
@@ -159,9 +167,11 @@ export const userService = {
       const response: AxiosResponse<User> = await api.put(`/users/${id}`, userData);
       toast.success('Profil mis à jour avec succès');
       return response.data;
-    } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: { message?: string } } };
-      throw new Error(axiosError.response?.data?.message || 'Erreur lors de la mise à jour du profil');
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data?.message || 'Erreur lors de la mise à jour du profil');
+      }
+      throw new Error('Erreur lors de la mise à jour du profil');
     }
   },
 
@@ -171,9 +181,11 @@ export const userService = {
       const response: AxiosResponse<User> = await api.patch(`/users/${id}`);
       toast.success('Statut business modifié');
       return response.data;
-    } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: { message?: string } } };
-      throw new Error(axiosError.response?.data?.message || 'Erreur lors de la modification du statut');
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data?.message || 'Erreur lors de la modification du statut');
+      }
+      throw new Error('Erreur lors de la modification du statut');
     }
   },
 
@@ -182,9 +194,11 @@ export const userService = {
     try {
       await api.delete(`/users/${id}`);
       toast.success('Utilisateur supprimé');
-    } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: { message?: string } } };
-      throw new Error(axiosError.response?.data?.message || 'Erreur lors de la suppression');
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data?.message || 'Erreur lors de la suppression');
+      }
+      throw new Error('Erreur lors de la suppression');
     }
   },
 
@@ -201,9 +215,11 @@ export const userService = {
       toast.success('Profil mis à jour avec succès');
       
       return response.data.user;
-    } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: { message?: string } } };
-      throw new Error(axiosError.response?.data?.message || 'Erreur lors de la mise à jour du profil');
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data?.message || 'Erreur lors de la mise à jour du profil');
+      }
+      throw new Error('Erreur lors de la mise à jour du profil');
     }
   },
 
@@ -212,9 +228,11 @@ export const userService = {
     try {
       await api.patch('/users/change-password', passwordData);
       toast.success('Mot de passe mis à jour avec succès');
-    } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: { message?: string } } };
-      throw new Error(axiosError.response?.data?.message || 'Erreur lors du changement de mot de passe');
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data?.message || 'Erreur lors du changement de mot de passe');
+      }
+      throw new Error('Erreur lors du changement de mot de passe');
     }
   },
 };
@@ -226,9 +244,11 @@ export const cardService = {
     try {
       const response: AxiosResponse<CardsResponse> = await api.get('/cards');
       return response.data.cards;
-    } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: { message?: string } } };
-      throw new Error(axiosError.response?.data?.message || 'Erreur lors de la récupération des cartes');
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data?.message || 'Erreur lors de la récupération des cartes');
+      }
+      throw new Error('Erreur lors de la récupération des cartes');
     }
   },
 
@@ -237,9 +257,11 @@ export const cardService = {
     try {
       const response: AxiosResponse<Card> = await api.get(`/cards/${id}`);
       return response.data;
-    } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: { message?: string } } };
-      throw new Error(axiosError.response?.data?.message || 'Erreur lors de la récupération de la carte');
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data?.message || 'Erreur lors de la récupération de la carte');
+      }
+      throw new Error('Erreur lors de la récupération de la carte');
     }
   },
 
@@ -247,10 +269,12 @@ export const cardService = {
   async getMyCards(): Promise<Card[]> {
     try {
       const response: AxiosResponse<CardsResponse> = await api.get('/cards/my-cards');
-      return response.data.cards || (response.data as unknown as Card[]);
-    } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: { message?: string } } };
-      throw new Error(axiosError.response?.data?.message || 'Erreur lors de la récupération de vos cartes');
+      return response.data.cards || [];
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data?.message || 'Erreur lors de la récupération de vos cartes');
+      }
+      throw new Error('Erreur lors de la récupération de vos cartes');
     }
   },
 
@@ -260,9 +284,11 @@ export const cardService = {
       const response: AxiosResponse<CardResponse> = await api.post('/cards', cardData);
       toast.success('Carte créée avec succès !');
       return response.data.card;
-    } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: { message?: string } } };
-      throw new Error(axiosError.response?.data?.message || 'Erreur lors de la création de la carte');
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data?.message || 'Erreur lors de la création de la carte');
+      }
+      throw new Error('Erreur lors de la création de la carte');
     }
   },
 
@@ -272,9 +298,11 @@ export const cardService = {
       const response: AxiosResponse<Card> = await api.put(`/cards/${id}`, cardData);
       toast.success('Carte mise à jour avec succès');
       return response.data;
-    } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: { message?: string } } };
-      throw new Error(axiosError.response?.data?.message || 'Erreur lors de la mise à jour de la carte');
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data?.message || 'Erreur lors de la mise à jour de la carte');
+      }
+      throw new Error('Erreur lors de la mise à jour de la carte');
     }
   },
 
@@ -291,9 +319,11 @@ export const cardService = {
       }
       
       return response.data.card;
-    } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: { message?: string } } };
-      throw new Error(axiosError.response?.data?.message || 'Erreur lors du like');
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data?.message || 'Erreur lors du like');
+      }
+      throw new Error('Erreur lors du like');
     }
   },
 
@@ -302,9 +332,11 @@ export const cardService = {
     try {
       await api.delete(`/cards/${id}`);
       toast.success('Carte supprimée avec succès');
-    } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: { message?: string } } };
-      throw new Error(axiosError.response?.data?.message || 'Erreur lors de la suppression de la carte');
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data?.message || 'Erreur lors de la suppression de la carte');
+      }
+      throw new Error('Erreur lors de la suppression de la carte');
     }
   },
 
@@ -314,7 +346,7 @@ export const cardService = {
       // Pour l'instant, on utilise un object URL comme placeholder
       // Dans une vraie implémentation, on uploaderait vers un service de stockage
       return URL.createObjectURL(file);
-    } catch (error: unknown) {
+    } catch (error) {
       throw new Error('Erreur lors de l\'upload de l\'image');
     }
   }
