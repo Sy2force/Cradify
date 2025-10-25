@@ -75,7 +75,7 @@ export default function LoginPage({ className }: PageProps = {}) {
       toast.success('Connexion réussie !');
       navigate(from, { replace: true });
     } catch (error) {
-      console.error('Erreur de connexion:', error);
+      // Erreur de connexion
       
       if (error instanceof Error) {
         const message = error.message;

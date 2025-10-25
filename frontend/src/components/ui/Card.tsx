@@ -74,7 +74,7 @@ export function Card({
         onLike();
       }
     } catch (error) {
-      console.error('Erreur lors du like:', error);
+      // Erreur lors du like
     } finally {
       setIsLiking(false);
     }

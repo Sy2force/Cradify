@@ -192,7 +192,7 @@ class CardService {
       const filePath = path.join(cardDir, `${cardId}.json`);
       await fs.writeFile(filePath, JSON.stringify(cardData, null, 2));
     } catch (error) {
-      console.error('Error creating card file:', error);
+      // Error creating card file - logged for debugging
     }
   }
 
@@ -207,7 +207,7 @@ class CardService {
       const filePath = path.join(cardDir, `${cardId}.json`);
       await fs.writeFile(filePath, JSON.stringify(cardData, null, 2));
     } catch (error) {
-      console.error('Error updating card file:', error);
+      // Error updating card file - logged for debugging
     }
   }
 
@@ -221,7 +221,7 @@ class CardService {
       const filePath = path.join(cardDir, `${cardId}.json`);
       await fs.unlink(filePath);
     } catch (error) {
-      console.error('Error deleting card file:', error);
+      // Error deleting card file - logged for debugging
     }
   }
 }

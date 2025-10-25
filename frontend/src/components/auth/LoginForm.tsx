@@ -28,7 +28,6 @@ export function LoginForm() {
       navigate('/');
     } catch (error: unknown) {
       // L'erreur est déjà affichée dans le contexte
-      console.error('Login error:', error);
     }
   };
 

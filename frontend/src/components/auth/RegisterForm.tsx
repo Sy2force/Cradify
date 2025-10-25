@@ -34,7 +34,6 @@ export function RegisterForm() {
       navigate('/');
     } catch (error: unknown) {
       // L'erreur est déjà affichée dans le contexte
-      console.error('Registration error:', error);
     }
   };
 

@@ -52,7 +52,7 @@ export default function CardItem({
       setIsLiked(!isLiked);
       setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
     } catch (error) {
-      console.error('Erreur lors du like:', error);
+      // Erreur lors du like
       toast.error('Erreur lors du like');
     } finally {
       setIsLoading(false);

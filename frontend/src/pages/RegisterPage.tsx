@@ -171,7 +171,7 @@ export default function RegisterPage({ className }: PageProps = {}) {
         }
       });
     } catch (error) {
-      console.error('Erreur d\'inscription:', error);
+      // Erreur d'inscription
       
       if (error instanceof Error) {
         const message = error.message;

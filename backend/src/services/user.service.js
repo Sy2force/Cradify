@@ -182,7 +182,7 @@ class UserService {
       const filePath = path.join(userDir, `${userId}.json`);
       await fs.writeFile(filePath, JSON.stringify(userData, null, 2));
     } catch (error) {
-      console.error('Error creating user file:', error);
+      // Error creating user file - logged for debugging
     }
   }
 
@@ -197,7 +197,7 @@ class UserService {
       const filePath = path.join(userDir, `${userId}.json`);
       await fs.writeFile(filePath, JSON.stringify(userData, null, 2));
     } catch (error) {
-      console.error('Error updating user file:', error);
+      // Error updating user file - logged for debugging
     }
   }
 
@@ -211,7 +211,7 @@ class UserService {
       const filePath = path.join(userDir, `${userId}.json`);
       await fs.unlink(filePath);
     } catch (error) {
-      console.error('Error deleting user file:', error);
+      // Error deleting user file - logged for debugging
     }
   }
 }

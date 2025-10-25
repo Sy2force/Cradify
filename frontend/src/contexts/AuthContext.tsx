@@ -28,7 +28,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           apiClient.setToken(storedToken);
         }
       } catch (error) {
-        console.error('Erreur lors de l\'initialisation de l\'auth:', error);
+        // Erreur lors de l'initialisation de l'auth - nettoyage du localStorage
         // Nettoyer le localStorage en cas d'erreur
         localStorage.removeItem('cardify_token');
         localStorage.removeItem('cardify_user');
@@ -125,7 +125,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       localStorage.setItem('cardify_user', JSON.stringify(newUserData));
       toast.success('Profil mis à jour');
     } catch (error) {
-      console.error('Erreur de mise à jour du profil:', error);
+      // Erreur de mise à jour du profil
       toast.error('Erreur de mise à jour du profil');
     }
   };
@@ -167,7 +167,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erreur lors de la mise à jour du profil';
-      console.error('Erreur de mise à jour du profil:', error);
+      // Erreur de mise à jour du profil
       toast.error(errorMessage);
       throw error;
     } finally {
