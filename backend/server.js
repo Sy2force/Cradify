@@ -8,7 +8,7 @@ const generateInitialData = require('./src/utils/generateInitialData');
 const { initializeChat } = require('./src/sockets/chat');
 const logger = require('./src/utils/logger');
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 10000;
 
 // Create HTTP server
 const server = http.createServer(app);
