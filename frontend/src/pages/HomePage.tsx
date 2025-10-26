@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Heart, Eye, Search } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { apiService } from '@/lib/api';
-import { Card as CardType } from '@/types';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { Card } from '@/components/ui/Card';
+import { useAuth } from '../contexts/AuthContext';
+import { apiService } from '../lib/api';
+import { Card as CardType } from '../types';
+import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
+import { Card } from '../components/ui/Card';
 import toast from 'react-hot-toast';
 
 export function HomePage() {

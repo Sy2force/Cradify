@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { LogOut, User, Plus } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/Button';
+import { useAuth } from '../../contexts/AuthContext';
+import { Button } from '../ui/Button';
 
 export function Header() {
   const { user, logout } = useAuth();

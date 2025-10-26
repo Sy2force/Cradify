@@ -5,6 +5,9 @@ import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { ProfilePage } from './pages/ProfilePage'
+import { CardsPage } from './pages/CardsPage'
+import { CreateCardPage } from './pages/CreateCardPage'
+import { CardDetailPage } from './pages/CardDetailPage'
 import { Toaster } from 'react-hot-toast'
 
 function App() {
@@ -15,9 +18,9 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/cards" element={<div>Cards Page - À créer</div>} />
-          <Route path="/create-card" element={<div>Create Card Page - À créer</div>} />
-          <Route path="/cards/:id" element={<div>Card Detail Page - À créer</div>} />
+          <Route path="/cards" element={<CardsPage />} />
+          <Route path="/create-card" element={<CreateCardPage />} />
+          <Route path="/cards/:id" element={<CardDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Routes>
       </Layout>

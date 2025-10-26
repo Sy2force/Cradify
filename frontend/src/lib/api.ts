@@ -9,7 +9,7 @@ import {
   RegisterResponse,
   CardsResponse,
   CardResponse
-} from '@/types';
+} from '../types';
 
 const API_BASE_URL = 'http://localhost:10000/api';
 

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { apiService } from '@/lib/api';
-import { User, AuthContextType, RegisterData } from '@/types';
+import { apiService } from '../lib/api';
+import { User, AuthContextType, RegisterData } from '../types';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
