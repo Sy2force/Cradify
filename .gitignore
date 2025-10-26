@@ -120,3 +120,6 @@ docker-compose*.yml
 frontend/node_modules/
 backend/node_modules/
 **/node_modules/
+
+# Local Netlify folder
+.netlify
