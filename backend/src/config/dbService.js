@@ -37,7 +37,12 @@ class DatabaseService {
       serverSelectionTimeoutMS: 5000,
       family: 4,
       retryWrites: true,
-      w: 'majority'
+      w: 'majority',
+      maxPoolSize: 10,
+      minPoolSize: 5,
+      maxIdleTimeMS: 30000,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000
     };
     return options;
   }

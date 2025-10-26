@@ -1,6 +1,8 @@
 const userService = require('../services/user.service');
 const emailService = require('../services/email.service');
 const logger = require('../utils/logger');
+const ResponseHelper = require('../helpers/responseHelper');
+const { ERROR_MESSAGES, SUCCESS_MESSAGES } = require('../constants');
 
 // POST /users - Register new user
 exports.register = async (req, res, next) => {
@@ -11,11 +13,7 @@ exports.register = async (req, res, next) => {
     emailService.sendWelcomeEmail(user.email, `${user.name.first} ${user.name.last}`)
       .catch(error => logger.error('Failed to send welcome email:', error));
     
-    res.status(201).json({
-      message: 'User created successfully',
-      token,
-      user
-    });
+    return ResponseHelper.registerSuccess(res, user, token);
   } catch (error) {
     next(error);
   }
@@ -27,11 +25,7 @@ exports.login = async (req, res, next) => {
     const { email, password } = req.body;
     const { user, token } = await userService.login(email, password);
     
-    res.json({
-      message: 'Login successful',
-      token,
-      user
-    });
+    return ResponseHelper.loginSuccess(res, user, token);
   } catch (error) {
     next(error);
   }
@@ -41,7 +35,7 @@ exports.login = async (req, res, next) => {
 exports.getAllUsers = async (req, res, next) => {
   try {
     const users = await userService.getAllUsers();
-    res.json(users);
+    return ResponseHelper.success(res, { users, count: users.length });
   } catch (error) {
     next(error);
   }
@@ -54,11 +48,11 @@ exports.getUserById = async (req, res, next) => {
     
     // Check permission
     if (req.user._id.toString() !== userId && !req.user.isAdmin) {
-      return res.status(403).json({ message: 'Access denied' });
+      return ResponseHelper.forbidden(res, ERROR_MESSAGES.AUTH.UNAUTHORIZED);
     }
     
     const user = await userService.getUserById(userId);
-    res.json(user);
+    return ResponseHelper.success(res, { user });
   } catch (error) {
     next(error);
   }
@@ -71,11 +65,11 @@ exports.updateUser = async (req, res, next) => {
     
     // Check permission
     if (req.user._id.toString() !== userId && !req.user.isAdmin) {
-      return res.status(403).json({ message: 'Access denied' });
+      return ResponseHelper.forbidden(res, ERROR_MESSAGES.AUTH.UNAUTHORIZED);
     }
     
     const user = await userService.updateUser(userId, req.body);
-    res.json(user);
+    return ResponseHelper.success(res, { user }, SUCCESS_MESSAGES.USER.UPDATED);
   } catch (error) {
     next(error);
   }
@@ -89,7 +83,7 @@ exports.changeBusinessStatus = async (req, res, next) => {
     
     // Check permission (user can change own status)
     if (req.user._id.toString() !== userId && !req.user.isAdmin) {
-      return res.status(403).json({ message: 'Access denied' });
+      return ResponseHelper.forbidden(res, ERROR_MESSAGES.AUTH.UNAUTHORIZED);
     }
     
     const user = await userService.changeBusinessStatus(userId, isBusiness);
@@ -100,10 +94,8 @@ exports.changeBusinessStatus = async (req, res, next) => {
         .catch(error => logger.error('Failed to send business approval email:', error));
     }
     
-    res.json({
-      message: `Business status ${isBusiness ? 'activated' : 'deactivated'}`,
-      user
-    });
+    const message = `Business status ${isBusiness ? 'activated' : 'deactivated'}`;
+    return ResponseHelper.success(res, { user }, message);
   } catch (error) {
     next(error);
   }
@@ -116,11 +108,11 @@ exports.deleteUser = async (req, res, next) => {
     
     // Only admin or the user themselves can delete
     if (req.user._id.toString() !== userId && !req.user.isAdmin) {
-      return res.status(403).json({ message: 'Access denied' });
+      return ResponseHelper.forbidden(res, ERROR_MESSAGES.AUTH.UNAUTHORIZED);
     }
     
     const result = await userService.deleteUser(userId);
-    res.json(result);
+    return ResponseHelper.success(res, result, SUCCESS_MESSAGES.USER.DELETED);
   } catch (error) {
     next(error);
   }

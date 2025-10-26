@@ -1,38 +1,39 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { apiClient } from '@/lib/api';
-import type { User, AuthContext as AuthContextType, RegisterForm } from '@/lib/types';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import { apiService } from '@/lib/api';
+import { User, AuthContextType, RegisterData } from '@/types';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-export function AuthProvider({ children }: AuthProviderProps) {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  // Initialisation : vérifier si l'utilisateur est déjà connecté
+  // Initialize auth state from localStorage
   useEffect(() => {
-    const initializeAuth = () => {
+    const initializeAuth = async () => {
       try {
         const storedToken = localStorage.getItem('cardify_token');
         const storedUser = localStorage.getItem('cardify_user');
-        
+
         if (storedToken && storedUser) {
           setToken(storedToken);
           setUser(JSON.parse(storedUser));
-          apiClient.setToken(storedToken);
+          
+          // Verify token is still valid
+          try {
+            const profile = await apiService.getProfile();
+            setUser(profile);
+            localStorage.setItem('cardify_user', JSON.stringify(profile));
+          } catch (error) {
+            // Token expired or invalid
+            logout();
+          }
         }
       } catch (error) {
-        // Erreur lors de l'initialisation de l'auth - nettoyage du localStorage
-        // Nettoyer le localStorage en cas d'erreur
-        localStorage.removeItem('cardify_token');
-        localStorage.removeItem('cardify_user');
-        apiClient.clearToken();
+        console.error('Auth initialization error:', error);
+        logout();
       } finally {
         setIsLoading(false);
       }
@@ -41,30 +42,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
     initializeAuth();
   }, []);
 
-  // Fonction de connexion
   const login = async (email: string, password: string): Promise<void> => {
     setIsLoading(true);
     try {
-      const response = await apiClient.login({ email, password });
+      const response = await apiService.login({ email, password });
       
-      if (response.success && response.data?.user && response.data?.token) {
-        const userData = response.data.user;
-        const tokenData = response.data.token;
+      if (response.success && response.user && response.token) {
+        setUser(response.user);
+        setToken(response.token);
         
-        setUser(userData);
-        setToken(tokenData);
+        // Store in localStorage
+        localStorage.setItem('cardify_token', response.token);
+        localStorage.setItem('cardify_user', JSON.stringify(response.user));
         
-        // Stocker dans localStorage
-        localStorage.setItem('cardify_token', tokenData);
-        localStorage.setItem('cardify_user', JSON.stringify(userData));
-        
+        apiService.setAuthToken(response.token);
         toast.success('Connexion réussie !');
       } else {
-        throw new Error('Réponse d\'authentification invalide');
+        throw new Error('Réponse de connexion invalide');
       }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Erreur de connexion au serveur';
-      setError(errorMessage);
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.message || 'Erreur de connexion';
       toast.error(errorMessage);
       throw error;
     } finally {
@@ -72,102 +69,54 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  // Fonction d'inscription
-  const register = async (userData: RegisterForm): Promise<void> => {
+  const register = async (userData: RegisterData): Promise<void> => {
     setIsLoading(true);
     try {
-      const response = await apiClient.register(userData);
+      const response = await apiService.register(userData);
       
-      if (response.success && response.data?.user && response.data?.token) {
-        const newUser = response.data.user;
-        const tokenData = response.data.token;
+      if (response.success && response.user && response.token) {
+        setUser(response.user);
+        setToken(response.token);
         
-        setUser(newUser);
-        setToken(tokenData);
+        // Store in localStorage
+        localStorage.setItem('cardify_token', response.token);
+        localStorage.setItem('cardify_user', JSON.stringify(response.user));
         
-        // Stocker dans localStorage
-        localStorage.setItem('cardify_token', tokenData);
-        localStorage.setItem('cardify_user', JSON.stringify(newUser));
-        
+        apiService.setAuthToken(response.token);
         toast.success('Inscription réussie !');
       } else {
         throw new Error('Réponse d\'inscription invalide');
       }
-    } catch (error: unknown) {
-      toast.error(error instanceof Error ? error.message : 'Erreur d\'inscription');
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.message || 'Erreur d\'inscription';
+      toast.error(errorMessage);
       throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Fonction de déconnexion
   const logout = (): void => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem('cardify_token');
-    localStorage.removeItem('cardify_user');
-    apiClient.clearToken();
+    apiService.clearAuth();
     toast.success('Déconnexion réussie');
   };
 
-  // Fonction de mise à jour du profil utilisateur (local)
-  const updateProfile = (userData: Partial<User>): void => {
+  const updateProfile = async (userData: Partial<User>): Promise<void> => {
     if (!user) {
       toast.error('Aucun utilisateur connecté');
       return;
     }
 
-    try {
-      // Mettre à jour l'état local
-      const newUserData = { ...user, ...userData };
-      setUser(newUserData);
-      localStorage.setItem('cardify_user', JSON.stringify(newUserData));
-      toast.success('Profil mis à jour');
-    } catch (error) {
-      // Erreur de mise à jour du profil
-      toast.error('Erreur de mise à jour du profil');
-    }
-  };
-
-  // Fonction de mise à jour du profil utilisateur (avec API)
-  const updateUser = async (userData: Partial<User>): Promise<void> => {
-    if (!user || !token) {
-      toast.error('Aucun utilisateur connecté');
-      throw new Error('Aucun utilisateur connecté');
-    }
-
     setIsLoading(true);
     try {
-      // Appeler l'API pour mettre à jour le profil
-      const response = await apiClient.updateUser(user._id, userData);
-      
-      if (response.success) {
-        // Gérer différents formats de réponse API
-        const dataWithUser = response.data as { user?: User } | User | undefined;
-        let updatedUser: User | undefined;
-        
-        if (response.user) {
-          updatedUser = response.user;
-        } else if (dataWithUser && 'user' in dataWithUser && dataWithUser.user) {
-          updatedUser = dataWithUser.user;
-        } else if (dataWithUser && '_id' in dataWithUser) {
-          updatedUser = dataWithUser as User;
-        }
-        
-        if (updatedUser) {
-          setUser(updatedUser);
-          localStorage.setItem('cardify_user', JSON.stringify(updatedUser));
-          toast.success('Profil mis à jour avec succès');
-        } else {
-          throw new Error('Données utilisateur non trouvées dans la réponse');
-        }
-      } else {
-        throw new Error('Échec de la mise à jour du profil');
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Erreur lors de la mise à jour du profil';
-      // Erreur de mise à jour du profil
+      const updatedUser = await apiService.updateProfile(user._id, userData);
+      setUser(updatedUser);
+      localStorage.setItem('cardify_user', JSON.stringify(updatedUser));
+      toast.success('Profil mis à jour avec succès');
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.message || 'Erreur de mise à jour';
       toast.error(errorMessage);
       throw error;
     } finally {
@@ -179,36 +128,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
     user,
     token,
     isLoading,
-    error,
-    isBusiness: user?.isBusiness || false,
     login,
     register,
     logout,
     updateProfile,
-    updateUser,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
-// Hook personnalisé pour utiliser le contexte d'authentification
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth doit être utilisé dans un AuthProvider');
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}
-
-// Hook pour vérifier les permissions
-export function usePermissions() {
-  const { user } = useAuth();
-  
-  return {
-    isAuthenticated: !!user,
-    isBusiness: user?.isBusiness || false,
-    isAdmin: user?.isAdmin || false,
-    canCreateCards: user?.isBusiness || false,
-    canManageUsers: user?.isAdmin || false,
-  };
 }

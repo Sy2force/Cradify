@@ -1,8 +1,10 @@
-const User = require('../models/user.model');
 const bcrypt = require('bcryptjs');
-const jwt = require('../utils/jwt');
-const fs = require('fs').promises;
-const path = require('path');
+const jwt = require('jsonwebtoken');
+const User = require('../models/user.model');
+const Card = require('../models/card.model');
+const config = require('../config');
+const ValidationHelper = require('../helpers/validationHelper');
+const { ERROR_MESSAGES, SUCCESS_MESSAGES } = require('../constants');
 
 class UserService {
   /**
@@ -11,29 +13,45 @@ class UserService {
    * @returns {Object} Created user and token
    */
   async register(userData) {
+    // Clean and validate user data
+    const cleanedData = ValidationHelper.cleanUserData(userData);
+    const validation = ValidationHelper.validateUserData(cleanedData);
+    
+    if (!validation.isValid) {
+      throw new Error(validation.errors.join(', '));
+    }
+
     // Check if user already exists
-    const existingUser = await User.findOne({ email: userData.email });
+    const existingUser = await User.findOne({ email: cleanedData.email });
     if (existingUser) {
-      throw new Error('Email already registered');
+      throw new Error(ERROR_MESSAGES.AUTH.EMAIL_EXISTS);
     }
 
     // Create new user
-    const user = new User(userData);
+    const user = new User(cleanedData);
     await user.save();
 
     // Generate JWT token
-    const token = jwt.generateToken({
-      _id: user._id,
-      isBusiness: user.isBusiness,
-      isAdmin: user.isAdmin
-    });
+    const jwtConfig = config.getJWTConfig();
+    const token = jwt.sign(
+      {
+        _id: user._id,
+        email: user.email,
+        isBusiness: user.isBusiness,
+        isAdmin: user.isAdmin
+      },
+      jwtConfig.secret,
+      { 
+        expiresIn: jwtConfig.expiresIn,
+        issuer: jwtConfig.issuer 
+      }
+    );
 
     // Remove password from response
     const userResponse = user.toObject();
     delete userResponse.password;
-
-    // Create user file
-    await this.createUserFile(user._id, userResponse);
+    delete userResponse.loginAttempts;
+    delete userResponse.lockUntil;
 
     return { user: userResponse, token };
   }
@@ -45,41 +63,60 @@ class UserService {
    * @returns {Object} User and token
    */
   async login(email, password) {
-    // Find user
-    const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user) {
-      throw new Error('Invalid credentials');
+    try {
+      // Find user
+      const user = await User.findOne({ email: email.toLowerCase() });
+      if (!user) {
+        throw new Error(ERROR_MESSAGES.AUTH.INVALID_CREDENTIALS);
+      }
+
+      // Check if account is locked
+      if (user.isLocked()) {
+        throw new Error(ERROR_MESSAGES.USER.ACCOUNT_LOCKED);
+      }
+
+      // Validate password
+      const isMatch = await user.comparePassword(password);
+      if (!isMatch) {
+        try {
+          await user.incLoginAttempts();
+        } catch (updateError) {
+          console.warn('Failed to update login attempts:', updateError.message);
+        }
+        throw new Error(ERROR_MESSAGES.AUTH.INVALID_CREDENTIALS);
+      }
+
+      // Reset login attempts on successful login
+      if (user.loginAttempts > 0) {
+        try {
+          await user.resetLoginAttempts();
+        } catch (updateError) {
+          // Log but don't fail the login
+          console.warn('Failed to reset login attempts:', updateError.message);
+        }
+      }
+
+      // Generate JWT token
+      const jwtUtils = require('../utils/jwt');
+      const token = jwtUtils.generateToken({
+        _id: user._id,
+        email: user.email,
+        isBusiness: user.isBusiness,
+        isAdmin: user.isAdmin
+      });
+
+      // Remove password from response
+      const userResponse = user.toObject();
+      delete userResponse.password;
+
+      return { user: userResponse, token };
+    } catch (error) {
+      // Re-throw with proper status if not already set
+      if (!error.status) {
+        error.status = 500;
+      }
+      throw error;
     }
-
-    // Check if account is locked
-    if (user.isLocked()) {
-      throw new Error('Account temporarily locked. Try again later.');
-    }
-
-    // Validate password
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      await user.incLoginAttempts();
-      throw new Error('Invalid credentials');
-    }
-
-    // Reset login attempts on successful login
-    if (user.loginAttempts > 0) {
-      await user.resetLoginAttempts();
-    }
-
-    // Generate JWT token
-    const token = jwt.generateToken({
-      _id: user._id,
-      isBusiness: user.isBusiness,
-      isAdmin: user.isAdmin
-    });
-
-    // Remove password from response
-    const userResponse = user.toObject();
-    delete userResponse.password;
-
-    return { user: userResponse, token };
   }
 
   /**
@@ -127,8 +164,7 @@ class UserService {
       throw new Error('User not found');
     }
 
-    // Update user file
-    await this.updateUserFile(userId, user.toObject());
+    // User updated successfully in database
 
     return user;
   }
@@ -143,8 +179,7 @@ class UserService {
       throw new Error('User not found');
     }
 
-    // Delete user file
-    await this.deleteUserFile(userId);
+    // User deleted successfully from database
 
     return { message: 'User deleted successfully' };
   }
@@ -169,51 +204,6 @@ class UserService {
     return user;
   }
 
-  /**
-   * Create user file
-   * @param {string} userId - User ID
-   * @param {Object} userData - User data
-   */
-  async createUserFile(userId, userData) {
-    try {
-      const userDir = path.join(__dirname, '../../data/users');
-      await fs.mkdir(userDir, { recursive: true });
-      
-      const filePath = path.join(userDir, `${userId}.json`);
-      await fs.writeFile(filePath, JSON.stringify(userData, null, 2));
-    } catch (error) {
-      // Error creating user file - logged for debugging
-    }
-  }
-
-  /**
-   * Update user file
-   * @param {string} userId - User ID
-   * @param {Object} userData - User data
-   */
-  async updateUserFile(userId, userData) {
-    try {
-      const userDir = path.join(__dirname, '../../data/users');
-      const filePath = path.join(userDir, `${userId}.json`);
-      await fs.writeFile(filePath, JSON.stringify(userData, null, 2));
-    } catch (error) {
-      // Error updating user file - logged for debugging
-    }
-  }
-
-  /**
-   * Delete user file
-   * @param {string} userId - User ID
-   */
-  async deleteUserFile(userId) {
-    try {
-      const userDir = path.join(__dirname, '../../data/users');
-      const filePath = path.join(userDir, `${userId}.json`);
-      await fs.unlink(filePath);
-    } catch (error) {
-      // Error deleting user file - logged for debugging
-    }
-  }
 }
 
 module.exports = new UserService();

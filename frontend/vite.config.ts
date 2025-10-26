@@ -12,38 +12,19 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    host: '0.0.0.0',
-    strictPort: true,
-  },
-  preview: {
-    port: 3000,
+    host: true,
+    open: true,
   },
   build: {
     outDir: 'dist',
-    emptyOutDir: true,
+    sourcemap: true,
     rollupOptions: {
       output: {
         manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'ui-vendor': ['framer-motion', 'lucide-react'],
-          'form-vendor': ['react-hook-form', '@hookform/resolvers', 'zod'],
-          'utils': ['axios', 'clsx', 'tailwind-merge', 'react-hot-toast']
-        }
-      }
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+        },
+      },
     },
-    chunkSizeWarningLimit: 1000,
-    sourcemap: false,
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true
-      }
-    },
-    target: 'esnext',
-    assetsDir: 'assets'
   },
-  define: {
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production')
-  }
 })

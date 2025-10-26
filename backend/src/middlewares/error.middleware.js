@@ -48,10 +48,20 @@ const errorHandler = (err, req, res, next) => {
 
   // Mongoose validation error
   if (err.name === 'ValidationError') {
-    const message = Object.values(err.errors).map(val => val.message);
+    const message = Object.values(err.errors).map(e => e.message).join(', ');
     return res.status(400).json({
       success: false,
-      message: message.join(', ')
+      message: 'Validation error',
+      details: message
+    });
+  }
+
+  // Joi validation error
+  if (err.isJoi || err.details) {
+    return res.status(400).json({
+      success: false,
+      message: 'Validation error',
+      details: err.details?.[0]?.message || err.message
     });
   }
   

@@ -1,10 +1,11 @@
 const Joi = require('joi');
+const { REGEX_PATTERNS, ERROR_MESSAGES } = require('../constants');
 
 // Common validation patterns
 const patterns = {
-  email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-  phone: /^0[2-9]-\d{7}$/,
-  password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/
+  email: REGEX_PATTERNS.EMAIL,
+  phone: REGEX_PATTERNS.PHONE,
+  password: REGEX_PATTERNS.PASSWORD
 };
 
 // User registration validation
@@ -20,9 +21,9 @@ const registerSchema = Joi.object({
   email: Joi.string().email().pattern(patterns.email).required().messages({
     'string.pattern.base': 'Please provide a valid email address'
   }),
-  password: Joi.string().min(7).max(128).pattern(patterns.password).required().messages({
-    'string.min': 'Password must be at least 7 characters long',
-    'string.pattern.base': 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
+  password: Joi.string().pattern(patterns.password).min(7).max(128).required().messages({
+    'string.pattern.base': ERROR_MESSAGES.VALIDATION.PASSWORD_WEAK,
+    'string.min': ERROR_MESSAGES.VALIDATION.PASSWORD_LENGTH
   }),
   image: Joi.object({
     url: Joi.string().uri().allow(''),
@@ -77,9 +78,9 @@ const businessStatusSchema = Joi.object({
 // Password change validation
 const changePasswordSchema = Joi.object({
   currentPassword: Joi.string().min(7).max(128).required(),
-  newPassword: Joi.string().min(7).max(128).pattern(patterns.password).required().messages({
-    'string.min': 'Password must be at least 7 characters long',
-    'string.pattern.base': 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
+  newPassword: Joi.string().pattern(patterns.password).min(7).max(128).required().messages({
+    'string.pattern.base': ERROR_MESSAGES.VALIDATION.PASSWORD_WEAK,
+    'string.min': ERROR_MESSAGES.VALIDATION.PASSWORD_LENGTH
   }),
   confirmPassword: Joi.string().valid(Joi.ref('newPassword')).required().messages({
     'any.only': 'Passwords do not match'

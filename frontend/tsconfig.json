@@ -19,59 +19,14 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "exactOptionalPropertyTypes": false,
-    "noUncheckedIndexedAccess": true,
-    "noImplicitReturns": true,
-    "noImplicitOverride": true,
     "forceConsistentCasingInFileNames": true,
 
-    /* Path Mapping */
+    /* Path mapping */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@/components/*": ["src/components/*"],
-      "@/pages/*": ["src/pages/*"],
-      "@/hooks/*": ["src/hooks/*"],
-      "@/contexts/*": ["src/contexts/*"],
-      "@/services/*": ["src/services/*"],
-      "@/types/*": ["src/types/*"],
-      "@/lib/*": ["src/lib/*"],
-      "@/assets/*": ["src/assets/*"]
-    },
-
-    /* React Specific */
-    "allowJs": false,
-    "checkJs": false,
-    
-    /* Error Handling */
-    "noErrorTruncation": true,
-    "preserveWatchOutput": true,
-
-    /* Module Resolution */
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-
-    /* Source Maps */
-    "sourceMap": true,
-    "declaration": false,
-    "declarationMap": false,
-
-    /* Experimental */
-    "experimentalDecorators": false,
-    "emitDecoratorMetadata": false
+      "@/*": ["./src/*"]
+    }
   },
-  "include": [
-    "src/**/*",
-    "src/**/*.tsx",
-    "src/**/*.ts",
-    "tests/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "build",
-    "**/*.js",
-    "**/*.cjs",
-    "**/*.mjs"
-  ],
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

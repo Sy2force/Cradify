@@ -18,7 +18,7 @@ router.get('/:id', cardController.getCardById);
 // CRUD operations
 router.post('/', auth, isBusiness, validate(createCardSchema), cardController.createCard);
 router.put('/:id', auth, validate(updateCardSchema), cardController.updateCard);
-router.patch('/:id', auth, cardController.toggleLike);
+router.patch('/:id/like', auth, cardController.toggleLike);
 router.delete('/:id', auth, cardController.deleteCard);
 
 module.exports = router;

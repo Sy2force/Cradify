@@ -18,8 +18,7 @@ class CardService {
     await card.save();
     await card.populate('user_id', 'name email');
 
-    // Create card file
-    await this.createCardFile(card._id, card.toObject());
+    // Card created successfully in database
 
     return card;
   }
@@ -43,15 +42,26 @@ class CardService {
    * @returns {Object} Card data
    */
   async getCardById(cardId) {
-    const card = await Card.findById(cardId)
-      .populate('user_id', 'name email')
-      .populate('likes', 'name email');
-    
-    if (!card) {
-      throw new Error('Card not found');
+    try {
+      const card = await Card.findById(cardId)
+        .populate('user_id', 'name email')
+        .populate('likes', 'name email');
+      
+      if (!card) {
+        const error = new Error('Card not found');
+        error.status = 404;
+        throw error;
+      }
+      
+      return card;
+    } catch (error) {
+      if (error.name === 'CastError') {
+        const err = new Error('Invalid card ID');
+        err.status = 400;
+        throw err;
+      }
+      throw error;
     }
-    
-    return card;
   }
 
   /**
@@ -77,33 +87,45 @@ class CardService {
    * @returns {Object} Updated card
    */
   async updateCard(cardId, updateData, userId, isAdmin = false) {
-    const card = await Card.findById(cardId);
-    
-    if (!card) {
-      throw new Error('Card not found');
+    try {
+      const card = await Card.findById(cardId);
+      
+      if (!card) {
+        const error = new Error('Card not found');
+        error.status = 404;
+        throw error;
+      }
+
+      // Check if user can update this card
+      if (!isAdmin && card.user_id.toString() !== userId.toString()) {
+        const error = new Error('Unauthorized to update this card');
+        error.status = 403;
+        throw error;
+      }
+
+      // Remove fields that shouldn't be updated
+      delete updateData.bizNumber;
+      delete updateData.likes;
+      delete updateData.user_id;
+      delete updateData.createdAt;
+
+      const updatedCard = await Card.findByIdAndUpdate(
+        cardId,
+        updateData,
+        { new: true, runValidators: true }
+      ).populate('user_id', 'name email').populate('likes', 'name email');
+
+      // Card updated successfully in database
+
+      return updatedCard;
+    } catch (error) {
+      if (error.name === 'CastError') {
+        const err = new Error('Invalid card ID');
+        err.status = 400;
+        throw err;
+      }
+      throw error;
     }
-
-    // Check if user can update this card
-    if (!isAdmin && card.user_id.toString() !== userId) {
-      throw new Error('Unauthorized to update this card');
-    }
-
-    // Remove fields that shouldn't be updated
-    delete updateData.bizNumber;
-    delete updateData.likes;
-    delete updateData.user_id;
-    delete updateData.createdAt;
-
-    const updatedCard = await Card.findByIdAndUpdate(
-      cardId,
-      updateData,
-      { new: true, runValidators: true }
-    ).populate('user_id', 'name email').populate('likes', 'name email');
-
-    // Update card file
-    await this.updateCardFile(cardId, updatedCard.toObject());
-
-    return updatedCard;
   }
 
   /**
@@ -113,23 +135,35 @@ class CardService {
    * @param {boolean} isAdmin - Is user admin
    */
   async deleteCard(cardId, userId, isAdmin = false) {
-    const card = await Card.findById(cardId);
-    
-    if (!card) {
-      throw new Error('Card not found');
+    try {
+      const card = await Card.findById(cardId);
+      
+      if (!card) {
+        const error = new Error('Card not found');
+        error.status = 404;
+        throw error;
+      }
+
+      // Check if user can delete this card
+      if (!isAdmin && card.user_id.toString() !== userId.toString()) {
+        const error = new Error('Unauthorized to delete this card');
+        error.status = 403;
+        throw error;
+      }
+
+      await Card.findByIdAndDelete(cardId);
+
+      // Card deleted successfully from database
+
+      return { message: 'Card deleted successfully' };
+    } catch (error) {
+      if (error.name === 'CastError') {
+        const err = new Error('Invalid card ID');
+        err.status = 400;
+        throw err;
+      }
+      throw error;
     }
-
-    // Check if user can delete this card
-    if (!isAdmin && card.user_id.toString() !== userId) {
-      throw new Error('Unauthorized to delete this card');
-    }
-
-    await Card.findByIdAndDelete(cardId);
-
-    // Delete card file
-    await this.deleteCardFile(cardId);
-
-    return { message: 'Card deleted successfully' };
   }
 
   /**
@@ -159,8 +193,7 @@ class CardService {
     await card.populate('user_id', 'name email');
     await card.populate('likes', 'name email');
 
-    // Update card file
-    await this.updateCardFile(cardId, card.toObject());
+    // Card likes updated successfully in database
 
     return card;
   }
@@ -179,51 +212,6 @@ class CardService {
     return cards;
   }
 
-  /**
-   * Create card file
-   * @param {string} cardId - Card ID
-   * @param {Object} cardData - Card data
-   */
-  async createCardFile(cardId, cardData) {
-    try {
-      const cardDir = path.join(__dirname, '../../data/cards');
-      await fs.mkdir(cardDir, { recursive: true });
-      
-      const filePath = path.join(cardDir, `${cardId}.json`);
-      await fs.writeFile(filePath, JSON.stringify(cardData, null, 2));
-    } catch (error) {
-      // Error creating card file - logged for debugging
-    }
-  }
-
-  /**
-   * Update card file
-   * @param {string} cardId - Card ID
-   * @param {Object} cardData - Card data
-   */
-  async updateCardFile(cardId, cardData) {
-    try {
-      const cardDir = path.join(__dirname, '../../data/cards');
-      const filePath = path.join(cardDir, `${cardId}.json`);
-      await fs.writeFile(filePath, JSON.stringify(cardData, null, 2));
-    } catch (error) {
-      // Error updating card file - logged for debugging
-    }
-  }
-
-  /**
-   * Delete card file
-   * @param {string} cardId - Card ID
-   */
-  async deleteCardFile(cardId) {
-    try {
-      const cardDir = path.join(__dirname, '../../data/cards');
-      const filePath = path.join(cardDir, `${cardId}.json`);
-      await fs.unlink(filePath);
-    } catch (error) {
-      // Error deleting card file - logged for debugging
-    }
-  }
 }
 
 module.exports = new CardService();

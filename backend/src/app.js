@@ -6,6 +6,7 @@ const fs = require('fs');
 // Import routes
 const userRoutes = require('./routes/user.routes');
 const cardRoutes = require('./routes/card.routes');
+const authRoutes = require('./routes/auth.routes');
 
 // Import middlewares
 const corsMiddleware = require('./middlewares/cors.middleware');
@@ -14,18 +15,6 @@ const logger = require('./utils/logger');
 
 // Create Express app
 const app = express();
-
-// Create logs and data directories if they don't exist
-const logsDir = path.join(__dirname, '../logs');
-const dataDir = path.join(__dirname, '../data');
-const usersDir = path.join(dataDir, 'users');
-const cardsDir = path.join(dataDir, 'cards');
-
-[logsDir, dataDir, usersDir, cardsDir].forEach(dir => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-});
 
 // Trust proxy for accurate IP addresses
 app.set('trust proxy', 1);
@@ -42,25 +31,10 @@ if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('[:date[clf]] :method :url :status :response-time ms - :res[content-length]'));
 }
 
-// Morgan logger - file for errors (status >= 400)
-const accessLogStream = fs.createWriteStream(
-  path.join(logsDir, 'access.log'),
-  { flags: 'a' }
-);
-
-app.use(morgan('[:date[clf]] :remote-addr :method :url :status :response-time ms - :res[content-length] ":user-agent"', {
-  stream: accessLogStream,
-  skip: (req, res) => res.statusCode < 400
-}));
-
 // API Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/cards', cardRoutes);
-
-// Chat page route
-app.get('/chat', (req, res) => {
-  res.sendFile(path.join(__dirname, '../chat.html'));
-});
 
 // API Health check
 app.get('/api/health', (req, res) => {
@@ -72,12 +46,6 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Chat statistics endpoint
-app.get('/api/chat/stats', (req, res) => {
-  const { getChatStats } = require('./sockets/chat');
-  res.json(getChatStats());
-});
-
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({
@@ -86,9 +54,7 @@ app.get('/', (req, res) => {
     endpoints: {
       health: '/api/health',
       users: '/api/users',
-      cards: '/api/cards',
-      chat: '/chat',
-      chatStats: '/api/chat/stats'
+      cards: '/api/cards'
     },
     documentation: '/api/docs'
   });

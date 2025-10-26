@@ -1,43 +1,41 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
+const config = require('../config');
+const ResponseHelper = require('../helpers/responseHelper');
+const { ERROR_MESSAGES } = require('../constants');
 
 // Authentication middleware
 exports.auth = async (req, res, next) => {
   try {
     // Get token from x-auth-token header (priority) or Authorization Bearer
-    let token = req.header('x-auth-token');
+    const token = req.header('x-auth-token');
     
     if (!token) {
-      const authHeader = req.header('Authorization');
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        token = authHeader.substring(7);
-      }
+      return ResponseHelper.unauthorized(res, ERROR_MESSAGES.AUTH.LOGIN_REQUIRED);
     }
-    
-    if (!token) {
-      return res.status(401).json({ message: 'No token, authorization denied' });
-    }
-    
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    // Get user from database
+
+    const jwtConfig = config.getJWTConfig();
+    const decoded = jwt.verify(token, jwtConfig.secret);
     const user = await User.findById(decoded._id).select('-password');
-    if (!user) {
-      return res.status(401).json({ message: 'Token is not valid' });
-    }
     
+    if (!user) {
+      return ResponseHelper.unauthorized(res, ERROR_MESSAGES.AUTH.TOKEN_INVALID);
+    }
+
     req.user = user;
     next();
   } catch (error) {
-    res.status(401).json({ message: 'Token is not valid' });
+    if (error.name === 'TokenExpiredError') {
+      return ResponseHelper.unauthorized(res, ERROR_MESSAGES.AUTH.TOKEN_EXPIRED);
+    }
+    return ResponseHelper.unauthorized(res, ERROR_MESSAGES.AUTH.TOKEN_INVALID);
   }
 };
 
 // Admin middleware
 exports.isAdmin = (req, res, next) => {
   if (!req.user.isAdmin) {
-    return res.status(403).json({ message: 'Admin access required' });
+    return ResponseHelper.forbidden(res, 'Admin access required');
   }
   next();
 };
@@ -45,7 +43,7 @@ exports.isAdmin = (req, res, next) => {
 // Business middleware
 exports.isBusiness = (req, res, next) => {
   if (!req.user.isBusiness && !req.user.isAdmin) {
-    return res.status(403).json({ message: 'Business access required' });
+    return ResponseHelper.forbidden(res, ERROR_MESSAGES.CARD.BUSINESS_REQUIRED);
   }
   next();
 };

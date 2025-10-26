@@ -1,46 +1,70 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const { DEFAULTS, REGEX_PATTERNS, FIELD_LIMITS } = require('../constants');
 
 const userSchema = new mongoose.Schema({
   name: {
-    first: { type: String, required: true, minlength: 2, maxlength: 256 },
-    middle: { type: String, maxlength: 256, default: '' },
-    last: { type: String, required: true, minlength: 2, maxlength: 256 }
+    first: { 
+      type: String, 
+      required: true, 
+      minlength: FIELD_LIMITS.NAME.MIN, 
+      maxlength: FIELD_LIMITS.NAME.MAX 
+    },
+    middle: { 
+      type: String, 
+      maxlength: FIELD_LIMITS.NAME.MAX, 
+      default: '' 
+    },
+    last: { 
+      type: String, 
+      required: true, 
+      minlength: FIELD_LIMITS.NAME.MIN, 
+      maxlength: FIELD_LIMITS.NAME.MAX 
+    }
   },
   phone: {
     type: String,
     required: true,
-    match: /^0[2-9]-\d{7}$/
+    match: REGEX_PATTERNS.PHONE
   },
   email: {
     type: String,
     required: true,
     unique: true,
     lowercase: true,
-    match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    maxlength: FIELD_LIMITS.EMAIL.MAX,
+    match: REGEX_PATTERNS.EMAIL
   },
   password: {
     type: String,
     required: true,
-    minlength: 7,
-    maxlength: 128
+    minlength: FIELD_LIMITS.PASSWORD.MIN,
+    maxlength: FIELD_LIMITS.PASSWORD.MAX
   },
   image: {
-    url: { type: String, default: 'https://cdn.pixabay.com/photo/2016/04/01/10/11/avatar-1299805_960_720.png' },
-    alt: { type: String, default: 'User profile picture' }
+    url: { 
+      type: String, 
+      default: DEFAULTS.IMAGE.URL,
+      maxlength: FIELD_LIMITS.URL.MAX 
+    },
+    alt: { 
+      type: String, 
+      default: DEFAULTS.IMAGE.ALT,
+      maxlength: FIELD_LIMITS.ALT_TEXT.MAX 
+    }
   },
   address: {
-    state: { type: String, maxlength: 256 },
-    country: { type: String, required: true, maxlength: 256 },
-    city: { type: String, required: true, maxlength: 256 },
-    street: { type: String, required: true, maxlength: 256 },
+    state: { type: String, maxlength: FIELD_LIMITS.NAME.MAX },
+    country: { type: String, required: true, maxlength: FIELD_LIMITS.NAME.MAX },
+    city: { type: String, required: true, maxlength: FIELD_LIMITS.NAME.MAX },
+    street: { type: String, required: true, maxlength: FIELD_LIMITS.NAME.MAX },
     houseNumber: { type: Number, required: true, min: 1 },
-    zip: { type: Number, default: 0 }
+    zip: { type: Number, default: DEFAULTS.ZIP_CODE }
   },
-  isAdmin: { type: Boolean, default: false },
-  isBusiness: { type: Boolean, default: false },
+  isAdmin: { type: Boolean, default: DEFAULTS.ADMIN_STATUS },
+  isBusiness: { type: Boolean, default: DEFAULTS.BUSINESS_STATUS },
   createdAt: { type: Date, default: Date.now },
-  loginAttempts: { type: Number, default: 0 },
+  loginAttempts: { type: Number, default: DEFAULTS.LOGIN_ATTEMPTS },
   lockUntil: { type: Date }
 });
 

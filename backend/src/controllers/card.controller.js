@@ -1,10 +1,14 @@
 const cardService = require('../services/card.service');
+const ResponseHelper = require('../helpers/responseHelper');
+const ValidationHelper = require('../helpers/validationHelper');
+const { ERROR_MESSAGES, SUCCESS_MESSAGES } = require('../constants');
 
 // GET /cards - Get all cards
 exports.getAllCards = async (req, res, next) => {
   try {
-    const cards = await cardService.getAllCards();
-    res.json(cards);
+    const { search, page, limit } = req.query;
+    const cards = await cardService.getAllCards(search, page, limit);
+    return ResponseHelper.success(res, { cards: cards.data, pagination: cards.pagination });
   } catch (error) {
     next(error);
   }
@@ -14,7 +18,7 @@ exports.getAllCards = async (req, res, next) => {
 exports.getMyCards = async (req, res, next) => {
   try {
     const cards = await cardService.getCardsByUserId(req.user._id);
-    res.json(cards);
+    return ResponseHelper.success(res, { cards, count: cards.length });
   } catch (error) {
     next(error);
   }
@@ -24,7 +28,7 @@ exports.getMyCards = async (req, res, next) => {
 exports.getLikedCards = async (req, res, next) => {
   try {
     const cards = await cardService.getLikedCards(req.user._id);
-    res.json(cards);
+    return ResponseHelper.success(res, { cards, count: cards.length });
   } catch (error) {
     next(error);
   }
@@ -34,7 +38,7 @@ exports.getLikedCards = async (req, res, next) => {
 exports.getCardById = async (req, res, next) => {
   try {
     const card = await cardService.getCardById(req.params.id);
-    res.json(card);
+    return ResponseHelper.success(res, { card });
   } catch (error) {
     next(error);
   }
@@ -44,11 +48,7 @@ exports.getCardById = async (req, res, next) => {
 exports.createCard = async (req, res, next) => {
   try {
     const card = await cardService.createCard(req.body, req.user._id);
-    
-    res.status(201).json({
-      message: 'Card created successfully',
-      card
-    });
+    return ResponseHelper.created(res, { card }, SUCCESS_MESSAGES.CARD.CREATED);
   } catch (error) {
     next(error);
   }
@@ -62,11 +62,7 @@ exports.updateCard = async (req, res, next) => {
     const isAdmin = req.user.isAdmin;
     
     const card = await cardService.updateCard(cardId, req.body, userId, isAdmin);
-    
-    res.json({
-      message: 'Card updated successfully',
-      card
-    });
+    return ResponseHelper.success(res, { card }, SUCCESS_MESSAGES.CARD.UPDATED);
   } catch (error) {
     next(error);
   }
@@ -78,14 +74,13 @@ exports.toggleLike = async (req, res, next) => {
     const cardId = req.params.id;
     const userId = req.user._id;
     
-    const card = await cardService.likeCard(cardId, userId);
+    const result = await cardService.likeCard(cardId, userId);
+    const message = result.isLiked ? SUCCESS_MESSAGES.CARD.LIKED : SUCCESS_MESSAGES.CARD.UNLIKED;
     
-    const isLiked = card.likes.some(like => like._id.toString() === userId.toString());
-    
-    res.json({
-      message: isLiked ? 'Card liked' : 'Card unliked',
-      card,
-      likesCount: card.likes.length
+    return ResponseHelper.success(res, { 
+      card: result.card, 
+      message,
+      likesCount: result.card.likes.length 
     });
   } catch (error) {
     next(error);
@@ -100,7 +95,7 @@ exports.deleteCard = async (req, res, next) => {
     const isAdmin = req.user.isAdmin;
     
     const result = await cardService.deleteCard(cardId, userId, isAdmin);
-    res.json(result);
+    return ResponseHelper.success(res, result, SUCCESS_MESSAGES.CARD.DELETED);
   } catch (error) {
     next(error);
   }
