@@ -40,7 +40,7 @@ export function CreateCardPage() {
     imageUrl: '',
     imageAlt: ''
   });
-  const [errors, setErrors] = useState<Partial<CardFormData>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleInputChange = (field: keyof CardFormData, value: string | number) => {
     setFormData(prev => ({
@@ -50,15 +50,16 @@ export function CreateCardPage() {
     
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({
-        ...prev,
-        [field]: undefined
-      }));
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
     }
   };
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<CardFormData> = {};
+    const newErrors: Record<string, string> = {};
 
     if (!formData.title.trim()) {
       newErrors.title = 'Le titre est requis';
@@ -106,25 +107,21 @@ export function CreateCardPage() {
 
     setIsLoading(true);
     try {
-      const cardData = {
+      const cardData: CardFormData = {
         title: formData.title,
         subtitle: formData.subtitle,
         description: formData.description,
         phone: formData.phone,
         email: formData.email,
         web: formData.web || undefined,
-        address: {
-          country: formData.country,
-          state: formData.state || undefined,
-          city: formData.city,
-          street: formData.street,
-          houseNumber: formData.houseNumber,
-          zip: formData.zip || 0
-        },
-        image: formData.imageUrl ? {
-          url: formData.imageUrl,
-          alt: formData.imageAlt || formData.title
-        } : undefined
+        country: formData.country,
+        state: formData.state || undefined,
+        city: formData.city,
+        street: formData.street,
+        houseNumber: formData.houseNumber,
+        zip: formData.zip || 0,
+        imageUrl: formData.imageUrl,
+        imageAlt: formData.imageAlt || formData.title
       };
 
       await apiService.createCard(cardData);
