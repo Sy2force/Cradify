@@ -4,12 +4,12 @@ const logger = require('../utils/logger');
 const ResponseHelper = require('../utils/responseHelper');
 const { ERROR_MESSAGES, SUCCESS_MESSAGES } = require('../constants');
 
-// POST /users - Register new user
+// Inscription d'un nouvel utilisateur
 exports.register = async (req, res, next) => {
   try {
     const { user, token } = await userService.register(req.body);
     
-    // Send welcome email (async, don't wait)
+    // Envoi de l'email de bienvenue en arrière-plan
     emailService.sendWelcomeEmail(user.email, `${user.name.first} ${user.name.last}`)
       .catch(error => logger.error('Failed to send welcome email:', error));
     
@@ -19,7 +19,7 @@ exports.register = async (req, res, next) => {
   }
 };
 
-// POST /users/login - Login user
+// Connexion utilisateur
 exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -27,7 +27,7 @@ exports.login = async (req, res, next) => {
     
     return ResponseHelper.loginSuccess(res, user, token);
   } catch (error) {
-    // Handle authentication errors with proper status codes
+    // Gestion des erreurs d'authentification avec codes de statut appropriés
     if (error.statusCode) {
       return res.status(error.statusCode).json({
         success: false,
@@ -38,7 +38,7 @@ exports.login = async (req, res, next) => {
   }
 };
 
-// GET /users - Get all users (admin only)
+// Récupération de tous les utilisateurs (admin uniquement)
 exports.getAllUsers = async (req, res, next) => {
   try {
     const users = await userService.getAllUsers();
@@ -48,12 +48,12 @@ exports.getAllUsers = async (req, res, next) => {
   }
 };
 
-// GET /users/:id - Get user profile
+// Récupération du profil utilisateur
 exports.getUserById = async (req, res, next) => {
   try {
     const userId = req.params.id;
     
-    // Check permission
+    // Vérification des permissions
     if (req.user._id.toString() !== userId && !req.user.isAdmin) {
       return ResponseHelper.forbidden(res, ERROR_MESSAGES.AUTH.UNAUTHORIZED);
     }
@@ -65,12 +65,12 @@ exports.getUserById = async (req, res, next) => {
   }
 };
 
-// PUT /users/:id - Update user profile
+// Mise à jour du profil utilisateur
 exports.updateUser = async (req, res, next) => {
   try {
     const userId = req.params.id;
     
-    // Check permission
+    // Vérification des permissions
     if (req.user._id.toString() !== userId && !req.user.isAdmin) {
       return ResponseHelper.forbidden(res, ERROR_MESSAGES.AUTH.UNAUTHORIZED);
     }
@@ -82,20 +82,20 @@ exports.updateUser = async (req, res, next) => {
   }
 };
 
-// PATCH /users/:id - Change business status
+// Changement du statut business
 exports.changeBusinessStatus = async (req, res, next) => {
   try {
     const userId = req.params.id;
     const { isBusiness } = req.body;
     
-    // Check permission (user can change own status)
+    // Vérification des permissions (l'utilisateur peut changer son propre statut)
     if (req.user._id.toString() !== userId && !req.user.isAdmin) {
       return ResponseHelper.forbidden(res, ERROR_MESSAGES.AUTH.UNAUTHORIZED);
     }
     
     const user = await userService.changeBusinessStatus(userId, isBusiness);
     
-    // Send business approval email if becoming business user
+    // Envoi de l'email d'approbation business si l'utilisateur devient business
     if (isBusiness) {
       emailService.sendBusinessApprovalEmail(user.email, `${user.name.first} ${user.name.last}`)
         .catch(error => logger.error('Failed to send business approval email:', error));
@@ -108,12 +108,12 @@ exports.changeBusinessStatus = async (req, res, next) => {
   }
 };
 
-// DELETE /users/:id - Delete user
+// Suppression d'un utilisateur
 exports.deleteUser = async (req, res, next) => {
   try {
     const userId = req.params.id;
     
-    // Only admin or the user themselves can delete
+    // Seul l'admin ou l'utilisateur lui-même peut supprimer
     if (req.user._id.toString() !== userId && !req.user.isAdmin) {
       return ResponseHelper.forbidden(res, ERROR_MESSAGES.AUTH.UNAUTHORIZED);
     }

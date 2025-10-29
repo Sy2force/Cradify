@@ -6,14 +6,13 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "build": "echo 'No build step required for Node.js'",
     "dev": "nodemon server.js",
     "test": "cross-env NODE_ENV=test jest --detectOpenHandles",
     "test:watch": "cross-env NODE_ENV=test jest --watch --detectOpenHandles",
     "test:coverage": "cross-env NODE_ENV=test jest --coverage",
-    "seed": "node src/utils/generateInitialData.js",
     "lint": "eslint . --ext .js",
-    "lint:fix": "eslint . --ext .js --fix"
+    "lint:fix": "eslint . --ext .js --fix",
+    "clean": "rm -rf coverage"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -52,6 +51,6 @@
     "express",
     "mongodb"
   ],
-  "author": "Cardify Team",
+  "author": "Shaya Coca",
   "license": "MIT"
 }

@@ -22,7 +22,7 @@ export function HomePage() {
       const cardsData = await apiService.getCards();
       setCards(cardsData || []);
     } catch {
-      // Mode démo avec données simulées
+      // Basculement en mode démo si l'API n'est pas disponible
       try {
         const mockCards = await apiService.getMockCards();
         setCards(mockCards);
@@ -51,7 +51,7 @@ export function HomePage() {
       ));
       toast.success(t('msg.cardLiked'));
     } catch {
-      // Mode offline - erreur silencieuse
+      // Gestion silencieuse des erreurs en mode hors ligne
     }
   };
 

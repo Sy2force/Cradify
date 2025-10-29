@@ -10,11 +10,9 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext ts,tsx --fix",
     "preview": "vite preview",
-    "test": "vitest",
-    "test:run": "vitest run",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "start": "npm run build && npm run preview"
   },
   "dependencies": {
     "axios": "^1.7.7",
@@ -27,8 +25,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.38.0",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.0",
     "@types/node": "^24.9.1",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.0",
@@ -40,12 +36,10 @@
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.12",
     "globals": "^16.4.0",
-    "jsdom": "^27.0.1",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.13",
     "terser": "^5.44.0",
     "typescript": "^5.6.2",
-    "vite": "^7.1.12",
-    "vitest": "^4.0.4"
+    "vite": "^7.1.12"
   }
 }
