@@ -6,6 +6,7 @@ const userRoutes = require('./routes/user.routes');
 const cardRoutes = require('./routes/card.routes');
 const authRoutes = require('./routes/auth.routes');
 const statsRoutes = require('./routes/stats.routes');
+const adminRoutes = require('./routes/admin.routes');
 
 // Import middlewares
 const corsMiddleware = require('./middlewares/cors.middleware');
@@ -35,6 +36,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/cards', cardRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/admin', adminRoutes);
 
 // API Health check
 app.get('/api/health', (req, res) => {

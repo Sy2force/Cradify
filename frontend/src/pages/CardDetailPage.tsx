@@ -154,24 +154,27 @@ export function CardDetailPage() {
   const ownerInfo = getOwnerInfo();
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/cards')}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            {t('cardDetail.backToCards')}
-          </Button>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="max-w-7xl mx-auto p-6">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/cards')}
+              className="bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-200"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              {t('cardDetail.backToCards')}
+            </Button>
           
           <div className="flex items-center space-x-2">
             <Button
               variant="ghost"
               size="sm"
               onClick={handleShare}
+              className="bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-200"
             >
               <Share className="w-4 h-4" />
             </Button>
@@ -212,19 +215,19 @@ export function CardDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Card Content */}
         <div className="lg:col-span-2">
-          <Card className="p-8">
+          <Card className="p-8 shadow-xl backdrop-blur-sm bg-white/95 border-0 rounded-2xl">
             {/* Card Header */}
-            <div className="flex items-start justify-between mb-6">
+            <div className="flex items-start justify-between mb-8">
               <div className="flex-1">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">
                   {card.title}
                 </h1>
-                <p className="text-lg text-gray-600 mb-4">
+                <p className="text-xl text-gray-600 mb-6 leading-relaxed">
                   {card.subtitle}
                 </p>
                 
                 {/* Business Number */}
-                <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                <div className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg">
                   #{card.bizNumber}
                 </div>
               </div>
@@ -251,14 +254,14 @@ export function CardDetailPage() {
             {/* Contact Information */}
             <div className="mb-8">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('cardDetail.contact')}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center p-4 bg-gray-50 rounded-lg">
-                  <Phone className="w-5 h-5 text-gray-400 mr-3" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex items-center p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-100 hover:shadow-lg transition-all duration-300">
+                  <Phone className="w-6 h-6 text-blue-600 mr-4" />
                   <div>
-                    <p className="text-sm text-gray-500">{t('cardDetail.phone')}</p>
+                    <p className="text-sm font-medium text-blue-700">{t('cardDetail.phone')}</p>
                     <a 
                       href={`tel:${card.phone.replace(/[-\s]/g, '')}`}
-                      className="text-gray-900 hover:text-primary-600 transition-colors cursor-pointer"
+                      className="text-gray-900 hover:text-blue-600 transition-colors cursor-pointer font-semibold"
                       onClick={(e) => {
                         // Fallback pour les navigateurs desktop
                         if (!navigator.userAgent.match(/Mobile|Android|iPhone|iPad/)) {
@@ -418,6 +421,7 @@ export function CardDetailPage() {
               )}
             </div>
           </Card>
+          </div>
         </div>
       </div>
     </div>

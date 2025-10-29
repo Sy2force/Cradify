@@ -47,15 +47,6 @@ interface ActivityLog {
   severity: SeverityLevel;
 }
 
-// Constants définies en dehors du composant pour éviter la re-création
-const ACTIVITY_TYPES: ActivityType[] = ['user_created', 'card_created', 'login', 'admin_action'];
-const SEVERITY_LEVELS: SeverityLevel[] = ['low', 'medium', 'high'];
-const getActivityDescriptions = (t: (key: string) => string) => [
-  t('admin.newUserCreated'),
-  t('admin.newCardCreated'), 
-  t('admin.userLogin'),
-  t('admin.adminAction')
-];
 
 export function AdminDashboard() {
   const { user } = useAuth();
@@ -76,59 +67,39 @@ export function AdminDashboard() {
     try {
       setLoading(true);
       
-      // Simuler des données d'administration
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Appel API réel pour récupérer toutes les données du dashboard
+      const token = localStorage.getItem('cardify_token');
+      const response = await fetch('/api/admin/dashboard', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors du chargement des données');
+      }
+
+      const result = await response.json();
       
-      const mockUsers: User[] = Array.from({ length: 25 }, (_, i) => ({
-        _id: `user_${i + 1}`,
-        name: { 
-          first: ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank', 'Grace'][i % 7],
-          last: ['Dupont', 'Martin', 'Bernard', 'Petit', 'Robert', 'Richard', 'Durand'][i % 7]
-        },
-        email: `user${i + 1}@example.com`,
-        isBusiness: Math.random() > 0.7,
-        isActive: Math.random() > 0.1,
-        createdAt: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
-        lastLogin: Math.random() > 0.2 ? new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString() : undefined,
-        cardsCount: Math.floor(Math.random() * 10),
-        isAdmin: i === 0
-      }));
-
-      const mockStats: AdminStats = {
-        totalUsers: mockUsers.length,
-        activeUsers: mockUsers.filter(u => u.isActive).length,
-        businessUsers: mockUsers.filter(u => u.isBusiness).length,
-        totalCards: mockUsers.reduce((acc, u) => acc + u.cardsCount, 0),
-        recentSignups: mockUsers.filter(u => new Date(u.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length,
-        systemHealth: 'good'
-      };
-
-      const mockActivityLogs: ActivityLog[] = Array.from({ length: 50 }, (_, i) => {
-        const typeIndex = Math.floor(Math.random() * ACTIVITY_TYPES.length);
-        return {
-          id: `log_${i + 1}`,
-          type: ACTIVITY_TYPES[typeIndex],
-          user: mockUsers[Math.floor(Math.random() * mockUsers.length)].email,
-          description: getActivityDescriptions(t)[Math.floor(Math.random() * getActivityDescriptions(t).length)],
-          timestamp: new Date(Date.now() - Math.random() * 24 * 60 * 60 * 1000).toISOString(),
-          severity: SEVERITY_LEVELS[Math.floor(Math.random() * SEVERITY_LEVELS.length)]
-        };
-      }).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-
-      setUsers(mockUsers);
-      setStats(mockStats);
-      setActivityLogs(mockActivityLogs.slice(0, 20));
+      if (result.success) {
+        setStats(result.data.stats);
+        setUsers(result.data.users);
+        setActivityLogs(result.data.activityLogs);
+      } else {
+        throw new Error(result.message || 'Erreur inconnue');
+      }
       
-    } catch {
+    } catch (error) {
       addNotification({
         type: 'error',
         title: 'Erreur',
-        message: 'Impossible de charger les données d\'administration'
+        message: error instanceof Error ? error.message : 'Impossible de charger les données d\'administration'
       });
     } finally {
       setLoading(false);
     }
-  }, [user, t, addNotification]);  
+  }, [user, addNotification]);  
 
   useEffect(() => {
     loadAdminData();
@@ -136,27 +107,61 @@ export function AdminDashboard() {
 
   const handleUserAction = async (userId: string, action: 'activate' | 'deactivate' | 'delete') => {
     try {
-      // Simuler l'action
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const token = localStorage.getItem('cardify_token');
       
-      setUsers(prevUsers => 
-        prevUsers.map(u => 
-          u._id === userId 
-            ? { ...u, isActive: action === 'activate' ? true : action === 'deactivate' ? false : u.isActive }
-            : u
-        ).filter(u => action !== 'delete' || u._id !== userId)
-      );
+      if (action === 'delete') {
+        // Suppression d'utilisateur
+        const response = await fetch(`/api/admin/users/${userId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || 'Erreur lors de la suppression');
+        }
+
+        // Supprimer de l'état local
+        setUsers(prevUsers => prevUsers.filter(u => u._id !== userId));
+        
+      } else {
+        // Activation/désactivation d'utilisateur
+        const isActive = action === 'activate';
+        const response = await fetch(`/api/admin/users/${userId}/status`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ isActive })
+        });
+
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || 'Erreur lors de la modification');
+        }
+
+        // Mettre à jour l'état local
+        setUsers(prevUsers => 
+          prevUsers.map(u => 
+            u._id === userId ? { ...u, isActive } : u
+          )
+        );
+      }
 
       addNotification({
         type: 'success',
         title: 'Action effectuée',
         message: `Utilisateur ${action === 'activate' ? 'activé' : action === 'deactivate' ? 'désactivé' : 'supprimé'} avec succès`
       });
-    } catch {
+    } catch (error) {
       addNotification({
         type: 'error',
         title: 'Erreur',
-        message: 'Impossible d\'effectuer cette action'
+        message: error instanceof Error ? error.message : 'Impossible d\'effectuer cette action'
       });
     }
   };

@@ -8,17 +8,17 @@ export function NotFoundPage() {
   const { t } = useLanguage();
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center px-4">
       <div className="max-w-lg mx-auto text-center">
         {/* 404 Animation */}
         <div className="mb-8">
           <div className="relative">
-            <h1 className="text-9xl font-bold text-gray-200 select-none">
+            <h1 className="text-9xl font-bold bg-gradient-to-r from-gray-200 to-gray-300 bg-clip-text text-transparent select-none">
               404
             </h1>
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-24 h-24 bg-primary-100 rounded-full flex items-center justify-center animate-bounce">
-                <Search className="w-12 h-12 text-primary-600" />
+              <div className="w-24 h-24 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center animate-bounce shadow-lg">
+                <Search className="w-12 h-12 text-blue-600" />
               </div>
             </div>
           </div>

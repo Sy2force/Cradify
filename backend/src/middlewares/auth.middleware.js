@@ -48,6 +48,9 @@ exports.isAdmin = (req, res, next) => {
   next();
 };
 
+// Admin only middleware (alias for consistency)
+exports.adminOnly = exports.isAdmin;
+
 // Business middleware
 exports.isBusiness = (req, res, next) => {
   if (!req.user.isBusiness && !req.user.isAdmin) {
