@@ -1,0 +1,25 @@
+/* Analytics Page Custom Styles */
+
+.activity-bar {
+  height: 10px;
+  min-height: 10px;
+  background: linear-gradient(to top, #3b82f6, #8b5cf6);
+  border-radius: 0.125rem 0.125rem 0 0;
+  margin-bottom: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.activity-bar[data-height] {
+  height: calc(var(--height) * 1px);
+}
+
+.activity-bar:hover {
+  transform: scale(1.05);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .activity-bar {
+    background: linear-gradient(to top, #2563eb, #7c3aed);
+  }
+}

@@ -1,6 +1,4 @@
 const Card = require('../models/card.model');
-const fs = require('fs').promises;
-const path = require('path');
 
 class CardService {
   /**
@@ -24,16 +22,44 @@ class CardService {
   }
 
   /**
-   * Get all cards
-   * @returns {Array} All cards
+   * Get all cards with optional search and pagination
+   * @param {string} search - Search term
+   * @param {number} page - Page number
+   * @param {number} limit - Items per page
+   * @returns {Object} Cards data with pagination
    */
-  async getAllCards() {
-    const cards = await Card.find()
+  async getAllCards(search, page = 1, limit = 10) {
+    let query = {};
+    
+    // Add search functionality
+    if (search) {
+      query = {
+        $or: [
+          { title: { $regex: search, $options: 'i' } },
+          { subtitle: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: 'i' } }
+        ]
+      };
+    }
+    
+    const cards = await Card.find(query)
       .populate('user_id', 'name email')
       .populate('likes', 'name email')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .limit(limit * 1)
+      .skip((page - 1) * limit);
     
-    return cards;
+    const total = await Card.countDocuments(query);
+    
+    return {
+      data: cards,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    };
   }
 
   /**
@@ -173,29 +199,42 @@ class CardService {
    * @returns {Object} Updated card
    */
   async likeCard(cardId, userId) {
-    const card = await Card.findById(cardId);
-    
-    if (!card) {
-      throw new Error('Card not found');
+    try {
+      const card = await Card.findById(cardId);
+      
+      if (!card) {
+        const error = new Error('Card not found');
+        error.status = 404;
+        throw error;
+      }
+
+      // Check if user already liked the card (compare ObjectId strings)
+      const userIdStr = userId.toString();
+      const likeIndex = card.likes.findIndex(like => like.toString() === userIdStr);
+      
+      if (likeIndex > -1) {
+        // Unlike: remove user from likes array
+        card.likes.splice(likeIndex, 1);
+      } else {
+        // Like: add user to likes array
+        card.likes.push(userId);
+      }
+
+      await card.save();
+      await card.populate('user_id', 'name email');
+      await card.populate('likes', 'name email');
+
+      // Card likes updated successfully in database
+
+      return card;
+    } catch (error) {
+      if (error.name === 'CastError') {
+        const err = new Error('Invalid card ID');
+        err.status = 400;
+        throw err;
+      }
+      throw error;
     }
-
-    const likeIndex = card.likes.indexOf(userId);
-    
-    if (likeIndex > -1) {
-      // Unlike: remove user from likes array
-      card.likes.splice(likeIndex, 1);
-    } else {
-      // Like: add user to likes array
-      card.likes.push(userId);
-    }
-
-    await card.save();
-    await card.populate('user_id', 'name email');
-    await card.populate('likes', 'name email');
-
-    // Card likes updated successfully in database
-
-    return card;
   }
 
   /**

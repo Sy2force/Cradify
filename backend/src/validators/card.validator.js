@@ -4,7 +4,7 @@ const Joi = require('joi');
 const patterns = {
   email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
   phone: /^0[2-9]-\d{7}$/,
-  url: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/
+  url: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$/
 };
 
 // Card creation validation
@@ -40,7 +40,7 @@ const updateCardSchema = Joi.object({
   title: Joi.string().min(2).max(256),
   subtitle: Joi.string().min(2).max(256),
   description: Joi.string().min(2).max(1024),
-  phone: Joi.string().pattern(patterns.phone).messages({
+  phone: Joi.string().pattern(/^[+]?[0-9\-\s()]{8,15}$/).messages({
     'string.pattern.base': 'Phone must be in format 0X-XXXXXXX'
   }),
   email: Joi.string().email().pattern(patterns.email).messages({

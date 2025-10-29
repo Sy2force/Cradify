@@ -1,7 +1,6 @@
 const cardService = require('../services/card.service');
-const ResponseHelper = require('../helpers/responseHelper');
-const ValidationHelper = require('../helpers/validationHelper');
-const { ERROR_MESSAGES, SUCCESS_MESSAGES } = require('../constants');
+const ResponseHelper = require('../utils/responseHelper');
+const { SUCCESS_MESSAGES } = require('../constants');
 
 // GET /cards - Get all cards
 exports.getAllCards = async (req, res, next) => {
@@ -74,15 +73,25 @@ exports.toggleLike = async (req, res, next) => {
     const cardId = req.params.id;
     const userId = req.user._id;
     
-    const result = await cardService.likeCard(cardId, userId);
-    const message = result.isLiked ? SUCCESS_MESSAGES.CARD.LIKED : SUCCESS_MESSAGES.CARD.UNLIKED;
+    const card = await cardService.likeCard(cardId, userId);
+    
+    // Check if user is in likes array to determine if liked or unliked
+    const isLiked = card.likes.some(like => like._id ? like._id.toString() === userId.toString() : like.toString() === userId.toString());
+    const message = isLiked ? SUCCESS_MESSAGES.CARD.LIKED : SUCCESS_MESSAGES.CARD.UNLIKED;
     
     return ResponseHelper.success(res, { 
-      card: result.card, 
+      card, 
       message,
-      likesCount: result.card.likes.length 
+      likesCount: card.likes.length 
     });
   } catch (error) {
+    // Handle service errors with proper status codes
+    if (error.status) {
+      return res.status(error.status).json({
+        success: false,
+        message: error.message
+      });
+    }
     next(error);
   }
 };

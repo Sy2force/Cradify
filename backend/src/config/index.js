@@ -4,7 +4,7 @@
  */
 
 const dbService = require('./dbService');
-const { JWT_CONFIG, DB_CONFIG, CORS_CONFIG } = require('../constants');
+const { JWT_CONFIG, CORS_CONFIG } = require('../constants');
 
 class ConfigService {
   constructor() {

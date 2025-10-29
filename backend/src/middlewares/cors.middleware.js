@@ -6,7 +6,7 @@ const corsConfig = config.getCORSConfig();
 
 // CORS configuration
 const corsOptions = {
-  origin: function (origin, callback) {
+  origin (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     

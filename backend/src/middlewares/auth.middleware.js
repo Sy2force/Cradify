@@ -1,14 +1,22 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
 const config = require('../config');
-const ResponseHelper = require('../helpers/responseHelper');
+const ResponseHelper = require('../utils/responseHelper');
 const { ERROR_MESSAGES } = require('../constants');
 
 // Authentication middleware
 exports.auth = async (req, res, next) => {
   try {
     // Get token from x-auth-token header (priority) or Authorization Bearer
-    const token = req.header('x-auth-token');
+    let token = req.header('x-auth-token');
+    
+    // If no x-auth-token, check Authorization Bearer header
+    if (!token) {
+      const authHeader = req.header('Authorization');
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7); // Remove 'Bearer ' prefix
+      }
+    }
     
     if (!token) {
       return ResponseHelper.unauthorized(res, ERROR_MESSAGES.AUTH.LOGIN_REQUIRED);

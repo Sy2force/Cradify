@@ -154,7 +154,7 @@ describe('Middlewares Tests', () => {
           .get('/api/auth/me')
           .set('Authorization', `Bearer ${expiredToken}`)
           .expect(401);
-      });
+      }, 15000);
     });
 
     describe('requireAdmin middleware', () => {

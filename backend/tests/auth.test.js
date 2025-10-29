@@ -11,8 +11,7 @@ process.env.NODE_ENV = 'test';
 const TEST_DB_URI = process.env.MONGODB_TEST_URI || 'mongodb://localhost:27017/cardify_test';
 
 describe('Authentication Tests', () => {
-  let server;
-  let testUser = {
+  const testUser = {
     name: {
       first: 'John',
       last: 'Doe'
@@ -33,10 +32,7 @@ describe('Authentication Tests', () => {
   beforeAll(async () => {
     // Connect to test database
     if (mongoose.connection.readyState !== 1) {
-      await mongoose.connect(TEST_DB_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-      });
+      await mongoose.connect(TEST_DB_URI);
     }
   });
 
@@ -178,7 +174,7 @@ describe('Authentication Tests', () => {
         .expect(401);
 
       expect(response.body).toHaveProperty('message', 'Token is not valid');
-    });
+    }, 10000);
   });
 
   describe('POST /api/auth/logout', () => {

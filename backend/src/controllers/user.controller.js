@@ -1,7 +1,7 @@
 const userService = require('../services/user.service');
 const emailService = require('../services/email.service');
 const logger = require('../utils/logger');
-const ResponseHelper = require('../helpers/responseHelper');
+const ResponseHelper = require('../utils/responseHelper');
 const { ERROR_MESSAGES, SUCCESS_MESSAGES } = require('../constants');
 
 // POST /users - Register new user
@@ -27,6 +27,13 @@ exports.login = async (req, res, next) => {
     
     return ResponseHelper.loginSuccess(res, user, token);
   } catch (error) {
+    // Handle authentication errors with proper status codes
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: error.message
+      });
+    }
     next(error);
   }
 };

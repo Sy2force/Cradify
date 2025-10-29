@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card } from '../components/ui/Card';
@@ -22,6 +23,7 @@ import toast from 'react-hot-toast';
 
 export function CreateCardPage() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<CardFormData>({
@@ -62,35 +64,35 @@ export function CreateCardPage() {
     const newErrors: Record<string, string> = {};
 
     if (!formData.title.trim()) {
-      newErrors.title = 'Le titre est requis';
+      newErrors.title = t('createCard.titleRequired');
     }
     if (!formData.subtitle.trim()) {
-      newErrors.subtitle = 'Le sous-titre est requis';
+      newErrors.subtitle = t('createCard.subtitleRequired');
     }
     if (!formData.description.trim()) {
-      newErrors.description = 'La description est requise';
+      newErrors.description = t('createCard.descriptionRequired');
     }
     if (!formData.phone.trim()) {
-      newErrors.phone = 'Le téléphone est requis';
+      newErrors.phone = t('createCard.phoneRequired');
     } else if (!/^0[2-9]-?\d{7,8}$/.test(formData.phone)) {
-      newErrors.phone = 'Format de téléphone invalide (ex: 06-12345678)';
+      newErrors.phone = t('createCard.phoneInvalid');
     }
     if (!formData.email.trim()) {
-      newErrors.email = 'L\'email est requis';
+      newErrors.email = t('createCard.emailRequired');
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Format d\'email invalide';
+      newErrors.email = t('createCard.emailInvalid');
     }
     if (!formData.country.trim()) {
-      newErrors.country = 'Le pays est requis';
+      newErrors.country = t('createCard.countryRequired');
     }
     if (!formData.city.trim()) {
-      newErrors.city = 'La ville est requise';
+      newErrors.city = t('createCard.cityRequired');
     }
     if (!formData.street.trim()) {
-      newErrors.street = 'La rue est requise';
+      newErrors.street = t('createCard.streetRequired');
     }
     if (!formData.houseNumber || formData.houseNumber < 1) {
-      newErrors.houseNumber = 'Le numéro de maison est requis';
+      newErrors.houseNumber = t('createCard.houseNumberRequired');
     }
 
     setErrors(newErrors);
@@ -101,7 +103,7 @@ export function CreateCardPage() {
     e.preventDefault();
     
     if (!validateForm()) {
-      toast.error('Veuillez corriger les erreurs dans le formulaire');
+      toast.error(t('createCard.formError'));
       return;
     }
 
@@ -124,13 +126,26 @@ export function CreateCardPage() {
         imageAlt: formData.imageAlt || formData.title
       };
 
+      if (process.env.NODE_ENV === 'production') {
+        // Mode démo - simulation de création réussie
+        toast.success(t('createCard.createdDemo'));
+        navigate('/cards');
+        return;
+      }
+
       await apiService.createCard(cardData);
-      toast.success('Carte créée avec succès !');
-      navigate('/cards');
+      toast.success(t('createCard.created'));
+      // Forcer le rechargement des cartes
+      setTimeout(() => {
+        window.location.href = '/cards';
+      }, 500);
     } catch (error: any) {
-      console.error('Error creating card:', error);
-      const errorMessage = error.response?.data?.message || error.message || 'Erreur lors de la création';
-      toast.error(errorMessage);
+      if (process.env.NODE_ENV === 'production') {
+        toast.error(t('createCard.checkDataError'));
+      } else {
+        const errorMessage = error.response?.data?.message || error.message || t('createCard.checkDataError');
+        toast.error(errorMessage);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -140,9 +155,9 @@ export function CreateCardPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Connexion requise</h2>
-          <p className="text-gray-600 mb-6">Vous devez être connecté pour créer une carte.</p>
-          <Button onClick={() => navigate('/login')}>Se connecter</Button>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('createCard.loginRequired')}</h2>
+          <p className="text-gray-600 mb-6">{t('createCard.loginRequiredDesc')}</p>
+          <Button onClick={() => navigate('/login')}>{t('createCard.signIn')}</Button>
         </div>
       </div>
     );
@@ -153,16 +168,16 @@ export function CreateCardPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <Building className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Compte Business requis</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('createCard.businessRequired')}</h2>
           <p className="text-gray-600 mb-6">
-            Vous devez avoir un compte Business pour créer des cartes de visite.
+            {t('createCard.businessRequiredDesc')}
           </p>
           <div className="space-x-4">
             <Button onClick={() => navigate('/profile')}>
-              Passer en Business
+              {t('createCard.upgradeToBusiness')}
             </Button>
             <Button variant="ghost" onClick={() => navigate('/cards')}>
-              Retour aux cartes
+              {t('createCard.backToCards')}
             </Button>
           </div>
         </div>
@@ -182,12 +197,12 @@ export function CreateCardPage() {
             className="mr-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Retour
+            {t('createCard.back')}
           </Button>
         </div>
-        <h1 className="text-3xl font-bold text-gray-900">Créer une carte</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t('createCard.title')}</h1>
         <p className="text-gray-600 mt-2">
-          Créez votre nouvelle carte de visite numérique professionnelle
+          {t('createCard.subtitle')}
         </p>
       </div>
 
@@ -199,19 +214,19 @@ export function CreateCardPage() {
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <User className="w-5 h-5 mr-2" />
-                Informations de base
+                {t('createCard.basicInfo')}
               </h3>
               
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Titre de la carte *
+                    {t('createCard.cardTitle')} *
                   </label>
                   <Input
                     type="text"
                     value={formData.title}
                     onChange={(e) => handleInputChange('title', e.target.value)}
-                    placeholder="ex: Développeur Full-Stack"
+                    placeholder={t('createCard.cardTitlePlaceholder')}
                     className={errors.title ? 'border-red-500' : ''}
                   />
                   {errors.title && (
@@ -221,13 +236,13 @@ export function CreateCardPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Sous-titre *
+                    {t('createCard.cardSubtitle')} *
                   </label>
                   <Input
                     type="text"
                     value={formData.subtitle}
                     onChange={(e) => handleInputChange('subtitle', e.target.value)}
-                    placeholder="ex: Spécialiste React & Node.js"
+                    placeholder={t('createCard.cardSubtitlePlaceholder')}
                     className={errors.subtitle ? 'border-red-500' : ''}
                   />
                   {errors.subtitle && (
@@ -237,12 +252,12 @@ export function CreateCardPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Description *
+                    {t('createCard.description')} *
                   </label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => handleInputChange('description', e.target.value)}
-                    placeholder="Décrivez vos services et compétences..."
+                    placeholder={t('createCard.descriptionPlaceholder')}
                     rows={4}
                     className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.description ? 'border-red-500' : ''}`}
                   />
@@ -257,14 +272,14 @@ export function CreateCardPage() {
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <Phone className="w-5 h-5 mr-2" />
-                Contact
+                {t('createCard.contact')}
               </h3>
               
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                     <Phone className="w-4 h-4 mr-1" />
-                    Téléphone *
+                    {t('form.phone')} *
                   </label>
                   <Input
                     type="tel"
@@ -281,7 +296,7 @@ export function CreateCardPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                     <Mail className="w-4 h-4 mr-1" />
-                    Email *
+                    {t('form.email')} *
                   </label>
                   <Input
                     type="email"
@@ -298,13 +313,13 @@ export function CreateCardPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                     <Globe className="w-4 h-4 mr-1" />
-                    Site web
+                    {t('createCard.website')}
                   </label>
                   <Input
                     type="url"
                     value={formData.web}
                     onChange={(e) => handleInputChange('web', e.target.value)}
-                    placeholder="https://monsite.com"
+                    placeholder={t('createCard.websitePlaceholder')}
                   />
                 </div>
               </div>
@@ -314,13 +329,13 @@ export function CreateCardPage() {
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <MapPin className="w-5 h-5 mr-2" />
-                Adresse
+                {t('createCard.address')}
               </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Pays *
+                    {t('register.countryLabel')} *
                   </label>
                   <Input
                     type="text"
@@ -335,7 +350,7 @@ export function CreateCardPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Ville *
+                    {t('register.cityLabel')} *
                   </label>
                   <Input
                     type="text"
@@ -350,7 +365,7 @@ export function CreateCardPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Rue *
+                    {t('register.streetLabel')} *
                   </label>
                   <Input
                     type="text"
@@ -365,7 +380,7 @@ export function CreateCardPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Numéro *
+                    {t('register.houseNumberLabel')} *
                   </label>
                   <Input
                     type="number"
@@ -381,7 +396,7 @@ export function CreateCardPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Code postal
+                    {t('register.zipLabel')}
                   </label>
                   <Input
                     type="number"
@@ -392,7 +407,7 @@ export function CreateCardPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    État/Région
+                    {t('profile.stateRegion')}
                   </label>
                   <Input
                     type="text"
@@ -407,31 +422,57 @@ export function CreateCardPage() {
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <ImageIcon className="w-5 h-5 mr-2" />
-                Image (optionnel)
+                {t('createCard.image')}
               </h3>
               
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    URL de l'image
+                    {t('createCard.selectImage')}
+                  </label>
+                  <div className="flex flex-col space-y-3">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      aria-label={t('createCard.selectImageAria')}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          // Create preview URL
+                          const url = URL.createObjectURL(file);
+                          handleInputChange('imageUrl', url);
+                          handleInputChange('imageAlt', file.name);
+                        }
+                      }}
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+                    />
+                    <div className="text-xs text-gray-500">
+                      {t('createCard.orEnterUrl')}
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t('createCard.imageUrl')}
                   </label>
                   <Input
                     type="url"
                     value={formData.imageUrl}
                     onChange={(e) => handleInputChange('imageUrl', e.target.value)}
-                    placeholder="https://exemple.com/image.jpg"
+                    placeholder={t('createCard.imageUrlPlaceholder')}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Texte alternatif
+                    {t('createCard.imageAlt')}
                   </label>
                   <Input
                     type="text"
                     value={formData.imageAlt}
                     onChange={(e) => handleInputChange('imageAlt', e.target.value)}
-                    placeholder="Description de l'image"
+                    placeholder={t('createCard.imageAltPlaceholder')}
                   />
                 </div>
               </div>
@@ -445,7 +486,7 @@ export function CreateCardPage() {
                 onClick={() => navigate('/cards')}
                 disabled={isLoading}
               >
-                Annuler
+{t('createCard.cancel')}
               </Button>
               <Button
                 type="submit"
@@ -453,7 +494,7 @@ export function CreateCardPage() {
                 className="flex items-center"
               >
                 <Save className="w-4 h-4 mr-2" />
-                {isLoading ? 'Création...' : 'Créer la carte'}
+{isLoading ? t('createCard.creating') : t('createCard.create')}
               </Button>
             </div>
           </form>
@@ -464,7 +505,7 @@ export function CreateCardPage() {
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
               <FileText className="w-5 h-5 mr-2" />
-              Aperçu
+              {t('createCard.preview')}
             </h3>
           </div>
 
@@ -474,10 +515,10 @@ export function CreateCardPage() {
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <h4 className="text-lg font-semibold text-gray-900">
-                    {formData.title || 'Titre de la carte'}
+                    {formData.title || t('createCard.previewTitle')}
                   </h4>
                   <p className="text-sm text-gray-600">
-                    {formData.subtitle || 'Sous-titre'}
+                    {formData.subtitle || t('createCard.previewSubtitle')}
                   </p>
                 </div>
                 {formData.imageUrl && (

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Complet Cardifyy Local</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; margin: 20px; line-height: 1.6; }
+        .server-status { padding: 15px; margin: 10px 0; border-radius: 8px; }
+        .online { background: #d4edda; border: 1px solid #c3e6cb; }
+        .offline { background: #f8d7da; border: 1px solid #f5c6cb; }
+        .test-case { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .btn { padding: 12px 20px; margin: 8px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; }
+        .btn-primary { background: #4F46E5; color: white; }
+        .btn-success { background: #10B981; color: white; }
+        .btn-info { background: #06B6D4; color: white; }
+        .data-example { background: #f8f9fa; padding: 10px; border-radius: 4px; margin: 10px 0; font-family: monospace; }
+        .step { margin: 10px 0; padding: 8px; background: #fff3cd; border-radius: 4px; }
+        .result { margin: 10px 0; padding: 8px; border-radius: 4px; }
+        .success { background: #d4edda; }
+        .error { background: #f8d7da; }
+    </style>
+</head>
+<body>
+    <h1>🚀 Test Complet - Cardifyy Local</h1>
+    
+    <div class="server-status online">
+        <h3>✅ État des Serveurs</h3>
+        <ul>
+            <li><strong>Backend:</strong> http://localhost:10000 - MongoDB connecté</li>
+            <li><strong>Frontend:</strong> http://localhost:3000 - Interface accessible</li>
+            <li><strong>API Health:</strong> Fonctionnelle</li>
+        </ul>
+    </div>
+
+    <div class="test-case">
+        <h3>Test 1: Inscription via Interface Web</h3>
+        <div class="step">
+            <strong>Objectif:</strong> Créer un nouveau compte utilisateur
+        </div>
+        
+        <div class="data-example">
+            <strong>Données de test validées :</strong><br>
+            • Email: votre.email@gmail.com (utilisez votre vraie adresse)<br>
+            • Nom: Marie<br>
+            • Prénom: Durand<br>
+            • Mot de passe: TestPassword123<br>
+            • Téléphone: 06-12345678 (format français)<br>
+            • Adresse: 42 Rue de la République, Lyon 69001<br>
+            • Type: Compte Personnel ou Business
+        </div>
+
+        <a href="http://localhost:3000/register" class="btn btn-primary" target="_blank" rel="noopener">
+            📝 Ouvrir Page Inscription
+        </a>
+
+        <div class="result" id="test1-result">
+            ⏳ En attente de test...
+        </div>
+    </div>
+
+    <div class="test-case">
+        <h3>Test 2: Connexion avec Compte Créé</h3>
+        <div class="step">
+            <strong>Objectif:</strong> Se connecter avec les identifiants créés
+        </div>
+        
+        <div class="data-example">
+            <strong>Utiliser:</strong><br>
+            • Email: marie.durand.test@gmail.com<br>
+            • Mot de passe: TestPassword123
+        </div>
+
+        <a href="http://localhost:3000/login" class="btn btn-primary" target="_blank" rel="noopener">
+            🔑 Ouvrir Page Connexion
+        </a>
+
+        <div class="result" id="test2-result">
+            ⏳ En attente de test...
+        </div>
+    </div>
+
+    <div class="test-case">
+        <h3>Test 3: Navigation et Profil</h3>
+        <div class="step">
+            <strong>Objectif:</strong> Vérifier l'interface utilisateur connecté
+        </div>
+        
+        <div class="data-example">
+            <strong>À vérifier:</strong><br>
+            • Header affiche "Marie Durand"<br>
+            • Menu profil accessible<br>
+            • Navigation entre pages fluide<br>
+            • Déconnexion fonctionne
+        </div>
+
+        <a href="http://localhost:3000" class="btn btn-info" target="_blank" rel="noopener">
+            🏠 Ouvrir Interface
+        </a>
+
+        <div class="result" id="test3-result">
+            ⏳ En attente de test...
+        </div>
+    </div>
+
+    <div class="test-case">
+        <h3>Test 4: Création de Carte de Visite</h3>
+        <div class="step">
+            <strong>Objectif:</strong> Créer une nouvelle carte
+        </div>
+        
+        <div class="data-example">
+            <strong>Exemple de carte:</strong><br>
+            • Titre: Marie Durand<br>
+            • Sous-titre: Consultante Marketing<br>
+            • Description: Experte en stratégie digitale<br>
+            • Email: marie@consulting.fr<br>
+            • Téléphone: 06-12345678<br>
+            • Site web: https://marie-consulting.fr
+        </div>
+
+        <a href="http://localhost:3000/cards/create" class="btn btn-primary" target="_blank" rel="noopener">
+            ➕ Créer une Carte
+        </a>
+
+        <div class="result" id="test4-result">
+            ⏳ En attente de test...
+        </div>
+    </div>
+
+    <div class="test-case">
+        <h3>Test 5: Gestion des Cartes</h3>
+        <div class="step">
+            <strong>Objectif:</strong> Tester les fonctionnalités de cartes
+        </div>
+        
+        <div class="data-example">
+            <strong>Actions à tester:</strong><br>
+            • Voir toutes les cartes (page Cartes)<br>
+            • Liker une carte<br>
+            • Voir détail d'une carte<br>
+            • Supprimer sa propre carte
+        </div>
+
+        <a href="http://localhost:3000/cards" class="btn btn-primary" target="_blank" rel="noopener">
+            📋 Voir les Cartes
+        </a>
+
+        <div class="result" id="test5-result">
+            ⏳ En attente de test...
+        </div>
+    </div>
+
+    <div class="test-case">
+        <h3>✅ Résultats API (Déjà Validés)</h3>
+        <div class="result success">
+            <strong>Backend API Tests:</strong><br>
+            ✅ Inscription: marie.durand.test@gmail.com créé avec succès<br>
+            ✅ Connexion: Authentification réussie<br>
+            ✅ Token JWT: Généré et valide<br>
+            ✅ Base de données: Utilisateur sauvegardé
+        </div>
+    </div>
+
+    <h2>📊 Instructions de Test</h2>
+    <div class="step">
+        <strong>1. Inscription:</strong> Utilisez n'importe quel email valide (@gmail.com recommandé)
+    </div>
+    <div class="step">
+        <strong>2. Format téléphone:</strong> Obligatoirement "0X-XXXXXXX" (ex: 06-12345678)
+    </div>
+    <div class="step">
+        <strong>3. Mot de passe:</strong> Minimum 7 caractères
+    </div>
+    <div class="step">
+        <strong>4. Adresse:</strong> Tous les champs requis (pays, ville, rue, numéro, code postal)
+    </div>
+
+    <script>
+        // Vérification automatique de l'état des serveurs
+        async function checkServerStatus() {
+            try {
+                const response = await fetch('http://localhost:10000/api/health');
+                const data = await response.json();
+                if (data.status === 'OK') {
+                    document.querySelector('.server-status').innerHTML = 
+                        '<h3>✅ Serveurs Opérationnels</h3>' +
+                        '<ul>' +
+                        '<li><strong>Backend:</strong> http://localhost:10000 ✅</li>' +
+                        '<li><strong>Frontend:</strong> http://localhost:3000 ✅</li>' +
+                        '<li><strong>API Health:</strong> ' + data.status + ' ✅</li>' +
+                        '<li><strong>Environnement:</strong> ' + data.environment + '</li>' +
+                        '</ul>';
+                }
+            } catch (error) {
+                document.querySelector('.server-status').className = 'server-status offline';
+                document.querySelector('.server-status').innerHTML = 
+                    '<h3>❌ Serveur Backend Indisponible</h3>' +
+                    '<p>Vérifiez que le backend est démarré sur le port 10000</p>';
+            }
+        }
+
+        // Vérifier au chargement
+        checkServerStatus();
+        
+        // Vérifier toutes les 30 secondes
+        setInterval(checkServerStatus, 30000);
+    </script>
+</body>
+</html>

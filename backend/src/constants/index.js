@@ -35,7 +35,7 @@ const DEFAULTS = {
 // Validation Patterns
 const REGEX_PATTERNS = {
   EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-  PHONE: /^0[2-9]-?\d{7,8}$/,
+  PHONE: /^[+]?[0-9\-\s()]{8,15}$/,
   PASSWORD: /^.{7,}$/,
   OBJECT_ID: /^[0-9a-fA-F]{24}$/
 };
@@ -65,10 +65,10 @@ const ERROR_MESSAGES = {
   AUTH: {
     INVALID_CREDENTIALS: 'Invalid email or password',
     EMAIL_EXISTS: 'Email already registered',
-    TOKEN_INVALID: 'Invalid token',
+    TOKEN_INVALID: 'Token is not valid',
     TOKEN_EXPIRED: 'Token expired',
     UNAUTHORIZED: 'Access denied',
-    LOGIN_REQUIRED: 'Please login to continue'
+    LOGIN_REQUIRED: 'No token, authorization denied'
   },
   USER: {
     NOT_FOUND: 'User not found',
@@ -132,11 +132,7 @@ const DB_CONFIG = {
 const CORS_CONFIG = {
   ALLOWED_ORIGINS: [
     'http://localhost:3000',
-    'http://localhost:3001', 
-    'http://localhost:5173',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001',
-    'http://127.0.0.1:5173'
+    'http://127.0.0.1:3000'
   ],
   METHODS: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   ALLOWED_HEADERS: [

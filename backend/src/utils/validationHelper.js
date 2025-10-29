@@ -87,7 +87,7 @@ class ValidationHelper {
     
     // Add dash if missing and length is 10
     if (digits.length === 10 && !phone.includes('-')) {
-      return digits.slice(0, 2) + '-' + digits.slice(2);
+      return `${digits.slice(0, 2)  }-${  digits.slice(2)}`;
     }
     
     return phone;
@@ -227,3 +227,14 @@ class ValidationHelper {
 }
 
 module.exports = ValidationHelper;
+
+// Export individual functions for backwards compatibility
+module.exports.validateInput = ValidationHelper.validateUserData.bind(ValidationHelper);
+module.exports.cleanUserData = ValidationHelper.cleanUserData.bind(ValidationHelper);
+module.exports.handleValidationError = (res, errors) => {
+  return res.status(400).json({
+    success: false,
+    message: 'Validation error',
+    errors: Array.isArray(errors) ? errors : [errors]
+  });
+};

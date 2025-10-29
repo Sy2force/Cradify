@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tests Cardifyy - Authentification</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .test-pass { background: #d4edda; border-color: #c3e6cb; }
+        .test-fail { background: #f8d7da; border-color: #f5c6cb; }
+        .test-pending { background: #fff3cd; border-color: #ffeaa7; }
+        button { padding: 10px 15px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #4F46E5; color: white; }
+        .btn-success { background: #10B981; color: white; }
+        input { padding: 8px; margin: 5px; border: 1px solid #ddd; border-radius: 4px; width: 200px; }
+        .test-actions { margin-top: 10px; }
+        .test-result { margin-top: 10px; }
+        .text-success { color: #10B981; }
+        .text-error { color: #EF4444; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Tests Cardifyy - Authentification</h1>
+    
+    <div class="test-section test-pending" id="test1">
+        <h3>Test 1: Inscription Utilisateur</h3>
+        <p><strong>Objectif:</strong> Créer un nouveau compte utilisateur avec toutes les données</p>
+        
+        <div>
+            <h4>Données de Test:</h4>
+            <ul>
+                <li><strong>Prénom:</strong> Jean</li>
+                <li><strong>Nom:</strong> Dupont</li>
+                <li><strong>Email:</strong> jean.dupont.test@cardifyy.com</li>
+                <li><strong>Téléphone:</strong> +33 6 12 34 56 78</li>
+                <li><strong>Adresse:</strong> 123 Rue de la Paix, Paris 75001</li>
+                <li><strong>Type:</strong> Compte Business</li>
+            </ul>
+        </div>
+        
+        <button class="btn-primary" onclick="window.open('https://cardifyy-app.netlify.app/register', '_blank')">
+            🚀 Ouvrir Page Inscription
+        </button>
+        
+        <div class="test-actions">
+            <button class="btn-success" onclick="markTestPass('test1')">✅ Test Réussi</button>
+            <button onclick="markTestFail('test1')">❌ Test Échoué</button>
+        </div>
+        
+        <div id="test1-result" class="test-result"></div>
+    </div>
+
+    <div class="test-section test-pending" id="test2">
+        <h3>Test 2: Connexion avec Compte Créé</h3>
+        <p><strong>Objectif:</strong> Se connecter avec les identifiants créés</p>
+        
+        <div>
+            <h4>Identifiants:</h4>
+            <ul>
+                <li><strong>Email:</strong> jean.dupont.test@cardifyy.com</li>
+                <li><strong>Mot de passe:</strong> (utilisé lors de l'inscription)</li>
+            </ul>
+        </div>
+        
+        <button class="btn-primary" onclick="window.open('https://cardifyy-app.netlify.app/login', '_blank')">
+            🔑 Ouvrir Page Connexion
+        </button>
+        
+        <div class="test-actions">
+            <button class="btn-success" onclick="markTestPass('test2')">✅ Test Réussi</button>
+            <button onclick="markTestFail('test2')">❌ Test Échoué</button>
+        </div>
+        
+        <div id="test2-result" class="test-result"></div>
+    </div>
+
+    <div class="test-section test-pending" id="test3">
+        <h3>Test 3: Navigation et Header Personnalisé</h3>
+        <p><strong>Objectif:</strong> Vérifier l'affichage du nom d'utilisateur et navigation</p>
+        
+        <div>
+            <h4>À Vérifier:</h4>
+            <ul>
+                <li>Header affiche "Jean Dupont"</li>
+                <li>Avatar ou initiales "JD"</li>
+                <li>Navigation fluide vers toutes les pages</li>
+                <li>Bouton "Créer une carte" visible (compte Business)</li>
+            </ul>
+        </div>
+        
+        <button class="btn-primary" onclick="window.open('https://cardifyy-app.netlify.app', '_blank')">
+            🏠 Ouvrir Homepage
+        </button>
+        
+        <div class="test-actions">
+            <button class="btn-success" onclick="markTestPass('test3')">✅ Test Réussi</button>
+            <button onclick="markTestFail('test3')">❌ Test Échoué</button>
+        </div>
+        
+        <div id="test3-result" class="test-result"></div>
+    </div>
+
+    <div class="test-section test-pending" id="test4">
+        <h3>Test 4: Page Profil et Sauvegarde Auto</h3>
+        <p><strong>Objectif:</strong> Tester la modification et sauvegarde automatique du profil</p>
+        
+        <div>
+            <h4>Actions à Effectuer:</h4>
+            <ol>
+                <li>Aller sur la page Profil</li>
+                <li>Modifier l'avatar URL: https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300</li>
+                <li>Modifier le téléphone: +33 6 98 76 54 32</li>
+                <li>Attendre 2 secondes → voir notification "Profil sauvegardé ! (mode démo)"</li>
+            </ol>
+        </div>
+        
+        <button class="btn-primary" onclick="window.open('https://cardifyy-app.netlify.app/profile', '_blank')">
+            👤 Ouvrir Page Profil
+        </button>
+        
+        <div class="test-actions">
+            <button class="btn-success" onclick="markTestPass('test4')">✅ Test Réussi</button>
+            <button onclick="markTestFail('test4')">❌ Test Échoué</button>
+        </div>
+        
+        <div id="test4-result" class="test-result"></div>
+    </div>
+
+    <div class="test-section test-pending" id="test5">
+        <h3>Test 5: Création de Carte</h3>
+        <p><strong>Objectif:</strong> Créer une nouvelle carte de visite</p>
+        
+        <div>
+            <h4>Exemple de Carte:</h4>
+            <ul>
+                <li><strong>Titre:</strong> Jean Dupont</li>
+                <li><strong>Sous-titre:</strong> Consultant Digital</li>
+                <li><strong>Description:</strong> Expert en transformation numérique</li>
+                <li><strong>Email:</strong> jean@dupont-conseil.fr</li>
+                <li><strong>Téléphone:</strong> +33 6 12 34 56 78</li>
+                <li><strong>Site web:</strong> https://dupont-conseil.fr</li>
+            </ul>
+        </div>
+        
+        <button class="btn-primary" onclick="window.open('https://cardifyy-app.netlify.app/create-card', '_blank')">
+            ➕ Ouvrir Création Carte
+        </button>
+        
+        <div class="test-actions">
+            <button class="btn-success" onclick="markTestPass('test5')">✅ Test Réussi</button>
+            <button onclick="markTestFail('test5')">❌ Test Échoué</button>
+        </div>
+        
+        <div id="test5-result" class="test-result"></div>
+    </div>
+
+    <div class="test-section test-pending" id="test6">
+        <h3>Test 6: Persistance après Rechargement</h3>
+        <p><strong>Objectif:</strong> Vérifier que l'utilisateur reste connecté après F5</p>
+        
+        <div>
+            <h4>Actions:</h4>
+            <ol>
+                <li>Recharger la page (F5 ou Ctrl+R)</li>
+                <li>Vérifier que l'utilisateur reste connecté</li>
+                <li>Vérifier que les données du header sont conservées</li>
+                <li>Naviguer vers différentes pages pour confirmer</li>
+            </ol>
+        </div>
+        
+        <button class="btn-primary" onclick="testPersistence()">
+            🔄 Tester Persistance
+        </button>
+        
+        <div class="test-actions">
+            <button class="btn-success" onclick="markTestPass('test6')">✅ Test Réussi</button>
+            <button onclick="markTestFail('test6')">❌ Test Échoué</button>
+        </div>
+        
+        <div id="test6-result" class="test-result"></div>
+    </div>
+
+    <div class="test-section test-pending" id="summary">
+        <h3>📊 Résumé des Tests</h3>
+        <div id="test-summary">
+            <p>Tests en cours...</p>
+        </div>
+        
+        <button class="btn-primary" onclick="generateReport()">
+            📋 Générer Rapport Final
+        </button>
+    </div>
+
+    <script>
+        let testResults = {
+            test1: 'pending',
+            test2: 'pending', 
+            test3: 'pending',
+            test4: 'pending',
+            test5: 'pending',
+            test6: 'pending'
+        };
+
+        function markTestPass(testId) {
+            testResults[testId] = 'pass';
+            const element = document.getElementById(testId);
+            element.className = 'test-section test-pass';
+            document.getElementById(testId + '-result').innerHTML = '<strong class="text-success">✅ TEST RÉUSSI</strong> - Fonctionnalité validée';
+            updateSummary();
+        }
+
+        function markTestFail(testId) {
+            testResults[testId] = 'fail';
+            const element = document.getElementById(testId);
+            element.className = 'test-section test-fail';
+            document.getElementById(testId + '-result').innerHTML = '<strong class="text-error">❌ TEST ÉCHOUÉ</strong> - Problème détecté';
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const passed = Object.values(testResults).filter(r => r === 'pass').length;
+            const failed = Object.values(testResults).filter(r => r === 'fail').length;
+            const pending = Object.values(testResults).filter(r => r === 'pending').length;
+            
+            document.getElementById('test-summary').innerHTML = `
+                <p><strong>✅ Réussis:</strong> ${passed}/6</p>
+                <p><strong>❌ Échoués:</strong> ${failed}/6</p>
+                <p><strong>⏳ En attente:</strong> ${pending}/6</p>
+            `;
+        }
+
+        function testPersistence() {
+            const message = 'Instructions:\n1. Rechargez cette page (F5)\n2. Vérifiez que vos données sont conservées\n3. Marquez le test selon le résultat';
+            if (window.confirm(message)) {
+                window.location.reload();
+            }
+        }
+
+        function generateReport() {
+            const passed = Object.values(testResults).filter(r => r === 'pass').length;
+            const total = Object.keys(testResults).length;
+            const percentage = Math.round((passed / total) * 100);
+            
+            const report = `🎯 RAPPORT FINAL\n\nTests réussis: ${passed}/${total} (${percentage}%)\n\nApplication ${percentage >= 80 ? 'VALIDÉE ✅' : 'À CORRIGER ⚠️'} pour production`;
+            console.log(report);
+        }
+
+        // Initialiser le résumé
+        updateSummary();
+    </script>
+</body>
+</html>

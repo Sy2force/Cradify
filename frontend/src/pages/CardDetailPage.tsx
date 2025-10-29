@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { apiService } from '../lib/api';
@@ -25,6 +26,7 @@ import toast from 'react-hot-toast';
 export function CardDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [card, setCard] = useState<CardType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,9 +34,8 @@ export function CardDetailPage() {
   const [likesCount, setLikesCount] = useState(0);
 
   useEffect(() => {
-    if (id) {
-      fetchCard();
-    }
+    fetchCard();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const fetchCard = async () => {
@@ -48,9 +49,8 @@ export function CardDetailPage() {
       setIsLiked(user ? response.likes?.some((like: any) => 
         typeof like === 'string' ? like === user._id : like._id === user._id
       ) || false : false);
-    } catch (error) {
-      console.error('Error fetching card:', error);
-      toast.error('Erreur lors du chargement de la carte');
+    } catch {
+      toast.error(t('cardDetail.loadError'));
       navigate('/cards');
     } finally {
       setIsLoading(false);
@@ -59,7 +59,7 @@ export function CardDetailPage() {
 
   const handleLike = async () => {
     if (!card || !user) {
-      toast.error('Vous devez être connecté pour liker une carte');
+      toast.error(t('cardDetail.loginToLike'));
       return;
     }
 
@@ -67,24 +67,22 @@ export function CardDetailPage() {
       await apiService.likeCard(card._id);
       setIsLiked(!isLiked);
       setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
-      toast.success(isLiked ? 'Like retiré' : 'Carte likée !');
-    } catch (error) {
-      console.error('Error liking card:', error);
-      toast.error('Erreur lors du like');
+      toast.success(isLiked ? t('cardDetail.likeRemoved') : t('cardDetail.cardLiked'));
+    } catch {
+      toast.error(t('cardDetail.likeError'));
     }
   };
 
   const handleDelete = async () => {
     if (!card) return;
     
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette carte ? Cette action est irréversible.')) {
+    if (window.confirm(t('cardDetail.deleteConfirm'))) {
       try {
         await apiService.deleteCard(card._id);
-        toast.success('Carte supprimée avec succès');
+        toast.success(t('cardDetail.deleteSuccess'));
         navigate('/cards');
-      } catch (error) {
-        console.error('Error deleting card:', error);
-        toast.error('Erreur lors de la suppression');
+      } catch {
+        toast.error(t('cardDetail.deleteError'));
       }
     }
   };
@@ -101,11 +99,10 @@ export function CardDetailPage() {
         });
       } else {
         await navigator.clipboard.writeText(window.location.href);
-        toast.success('Lien copié dans le presse-papiers');
+        toast.success(t('cardDetail.linkCopied'));
       }
-    } catch (error) {
-      console.error('Error sharing:', error);
-      toast.error('Erreur lors du partage');
+    } catch {
+      toast.error(t('cardDetail.shareError'));
     }
   };
 
@@ -121,7 +118,7 @@ export function CardDetailPage() {
     if (!card) return null;
     
     if (typeof card.user_id === 'string') {
-      return { name: 'Utilisateur', isBusiness: false };
+      return { name: t('cardDetail.user'), isBusiness: false };
     }
     
     const owner = card.user_id;
@@ -135,7 +132,7 @@ export function CardDetailPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-        <span className="ml-2 text-gray-600">Chargement...</span>
+        <span className="ml-2 text-gray-600">{t('cardDetail.loading')}</span>
       </div>
     );
   }
@@ -144,10 +141,10 @@ export function CardDetailPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Carte non trouvée</h2>
-          <p className="text-gray-600 mb-6">Cette carte n'existe pas ou a été supprimée.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('cardDetail.notFound')}</h2>
+          <p className="text-gray-600 mb-6">{t('cardDetail.notFoundMessage')}</p>
           <Button onClick={() => navigate('/cards')}>
-            Retour aux cartes
+            {t('cardDetail.backToCards')}
           </Button>
         </div>
       </div>
@@ -167,7 +164,7 @@ export function CardDetailPage() {
             onClick={() => navigate('/cards')}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Retour aux cartes
+            {t('cardDetail.backToCards')}
           </Button>
           
           <div className="flex items-center space-x-2">
@@ -245,7 +242,7 @@ export function CardDetailPage() {
 
             {/* Description */}
             <div className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Description</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('cardDetail.description')}</h3>
               <p className="text-gray-700 leading-relaxed">
                 {card.description}
               </p>
@@ -253,15 +250,23 @@ export function CardDetailPage() {
 
             {/* Contact Information */}
             <div className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('cardDetail.contact')}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center p-4 bg-gray-50 rounded-lg">
                   <Phone className="w-5 h-5 text-gray-400 mr-3" />
                   <div>
-                    <p className="text-sm text-gray-500">Téléphone</p>
+                    <p className="text-sm text-gray-500">{t('cardDetail.phone')}</p>
                     <a 
-                      href={`tel:${card.phone}`}
-                      className="text-gray-900 hover:text-primary-600 transition-colors"
+                      href={`tel:${card.phone.replace(/[-\s]/g, '')}`}
+                      className="text-gray-900 hover:text-primary-600 transition-colors cursor-pointer"
+                      onClick={(e) => {
+                        // Fallback pour les navigateurs desktop
+                        if (!navigator.userAgent.match(/Mobile|Android|iPhone|iPad/)) {
+                          e.preventDefault();
+                          navigator.clipboard.writeText(card.phone);
+                          toast.success(t('cardDetail.phoneCopied') || 'Numéro copié!');
+                        }
+                      }}
                     >
                       {card.phone}
                     </a>
@@ -271,7 +276,7 @@ export function CardDetailPage() {
                 <div className="flex items-center p-4 bg-gray-50 rounded-lg">
                   <Mail className="w-5 h-5 text-gray-400 mr-3" />
                   <div>
-                    <p className="text-sm text-gray-500">Email</p>
+                    <p className="text-sm text-gray-500">{t('cardDetail.email')}</p>
                     <a 
                       href={`mailto:${card.email}`}
                       className="text-gray-900 hover:text-primary-600 transition-colors"
@@ -285,7 +290,7 @@ export function CardDetailPage() {
                   <div className="flex items-center p-4 bg-gray-50 rounded-lg">
                     <Globe className="w-5 h-5 text-gray-400 mr-3" />
                     <div>
-                      <p className="text-sm text-gray-500">Site web</p>
+                      <p className="text-sm text-gray-500">{t('cardDetail.website')}</p>
                       <a 
                         href={card.web}
                         target="_blank"
@@ -301,7 +306,7 @@ export function CardDetailPage() {
                 <div className="flex items-center p-4 bg-gray-50 rounded-lg">
                   <MapPin className="w-5 h-5 text-gray-400 mr-3" />
                   <div>
-                    <p className="text-sm text-gray-500">Adresse</p>
+                    <p className="text-sm text-gray-500">{t('cardDetail.address')}</p>
                     <p className="text-gray-900">
                       {card.address.houseNumber} {card.address.street}
                       <br />
@@ -324,7 +329,7 @@ export function CardDetailPage() {
             <Card className="p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <User className="w-5 h-5 mr-2" />
-                Propriétaire
+                {t('cardDetail.owner')}
               </h3>
               <div className="space-y-3">
                 <div>
@@ -336,7 +341,7 @@ export function CardDetailPage() {
                       <User className="w-4 h-4 text-gray-400 mr-1" />
                     )}
                     <span className="text-sm text-gray-600">
-                      {ownerInfo.isBusiness ? 'Compte Business' : 'Compte Personnel'}
+                      {ownerInfo.isBusiness ? t('cardDetail.businessAccount') : t('cardDetail.personalAccount')}
                     </span>
                   </div>
                 </div>
@@ -346,12 +351,12 @@ export function CardDetailPage() {
 
           {/* Card Stats */}
           <Card className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Statistiques</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('cardDetail.statistics')}</h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <Heart className="w-4 h-4 text-gray-400 mr-2" />
-                  <span className="text-sm text-gray-600">Likes</span>
+                  <span className="text-sm text-gray-600">{t('cardDetail.likes')}</span>
                 </div>
                 <span className="font-medium text-gray-900">{likesCount}</span>
               </div>
@@ -359,7 +364,7 @@ export function CardDetailPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <Calendar className="w-4 h-4 text-gray-400 mr-2" />
-                  <span className="text-sm text-gray-600">Créée le</span>
+                  <span className="text-sm text-gray-600">{t('cardDetail.createdOn')}</span>
                 </div>
                 <span className="text-sm font-medium text-gray-900">
                   {new Date(card.createdAt).toLocaleDateString('fr-FR')}
@@ -370,7 +375,7 @@ export function CardDetailPage() {
 
           {/* Actions */}
           <Card className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Actions</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('cardDetail.actions')}</h3>
             <div className="space-y-3">
               <Button
                 onClick={handleShare}
@@ -378,7 +383,7 @@ export function CardDetailPage() {
                 className="w-full justify-start"
               >
                 <Share className="w-4 h-4 mr-2" />
-                Partager cette carte
+{t('cardDetail.shareCard')}
               </Button>
               
               {user && !isOwner() && (
@@ -388,7 +393,7 @@ export function CardDetailPage() {
                   className={`w-full justify-start ${isLiked ? 'text-red-500' : ''}`}
                 >
                   <Heart className={`w-4 h-4 mr-2 ${isLiked ? 'fill-current' : ''}`} />
-                  {isLiked ? 'Retirer le like' : 'Liker cette carte'}
+                  {isLiked ? t('cardDetail.unlikeCard') : t('cardDetail.likeCard')}
                 </Button>
               )}
               
@@ -397,7 +402,7 @@ export function CardDetailPage() {
                   <Link to={`/cards/${card._id}/edit`} className="block">
                     <Button variant="ghost" className="w-full justify-start">
                       <Edit className="w-4 h-4 mr-2" />
-                      Modifier la carte
+                      {t('cardDetail.editCard')}
                     </Button>
                   </Link>
                   
@@ -407,7 +412,7 @@ export function CardDetailPage() {
                     className="w-full justify-start text-red-500 hover:text-red-700"
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
-                    Supprimer la carte
+                    {t('cardDetail.deleteCard')}
                   </Button>
                 </>
               )}

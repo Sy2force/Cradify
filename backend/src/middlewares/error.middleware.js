@@ -1,8 +1,8 @@
 const logger = require('../utils/logger');
 
 // Error handler middleware
-const errorHandler = (err, req, res, next) => {
-  let error = { ...err };
+const errorHandler = (err, req, res, _next) => {
+  const error = { ...err };
   error.message = err.message;
 
   // Log error using logger service

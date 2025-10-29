@@ -38,7 +38,7 @@ class Logger {
       const logFile = path.join(logsDir, `erreurs-${dateStr}.log`);
       
       try {
-        fs.appendFileSync(logFile, JSON.stringify(logEntry) + '\n');
+        fs.appendFileSync(logFile, `${JSON.stringify(logEntry)  }\n`);
       } catch (error) {
         console.error('Failed to write to log file:', error);
       }

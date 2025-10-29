@@ -4,7 +4,7 @@
  */
 
 const bcrypt = require('bcryptjs');
-const { DEFAULTS, FIELD_LIMITS } = require('../constants');
+const { DEFAULTS } = require('../constants');
 
 /**
  * Hash password utility
@@ -162,7 +162,7 @@ const deepClone = (obj) => {
   if (typeof obj === 'object') {
     const clonedObj = {};
     for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
         clonedObj[key] = deepClone(obj[key]);
       }
     }
@@ -188,7 +188,7 @@ const isEmpty = (str) => {
 const truncateString = (str, length = 100) => {
   if (!str || typeof str !== 'string') return '';
   if (str.length <= length) return str;
-  return str.substring(0, length).trim() + '...';
+  return `${str.substring(0, length).trim()  }...`;
 };
 
 module.exports = {

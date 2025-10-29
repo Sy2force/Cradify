@@ -27,7 +27,7 @@ class EmailService {
     });
 
     // Verify connection configuration
-    this.transporter.verify((error, success) => {
+    this.transporter.verify((error, _success) => {
       if (error) {
         logger.error('Email service configuration error:', error);
       } else {

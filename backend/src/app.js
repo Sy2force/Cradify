@@ -1,12 +1,11 @@
 const express = require('express');
 const morgan = require('morgan');
-const path = require('path');
-const fs = require('fs');
 
 // Import routes
 const userRoutes = require('./routes/user.routes');
 const cardRoutes = require('./routes/card.routes');
 const authRoutes = require('./routes/auth.routes');
+const statsRoutes = require('./routes/stats.routes');
 
 // Import middlewares
 const corsMiddleware = require('./middlewares/cors.middleware');
@@ -35,6 +34,7 @@ if (process.env.NODE_ENV !== 'production') {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/cards', cardRoutes);
+app.use('/api/stats', statsRoutes);
 
 // API Health check
 app.get('/api/health', (req, res) => {

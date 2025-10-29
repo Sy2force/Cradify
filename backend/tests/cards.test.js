@@ -15,8 +15,6 @@ describe('Cards API Tests', () => {
   let businessToken;
   let adminToken;
   let userId;
-  let businessUserId;
-  let adminUserId;
   let cardId;
 
   const testUser = {
@@ -84,7 +82,6 @@ describe('Cards API Tests', () => {
       .post('/api/auth/register')
       .send(businessUser);
     businessToken = businessResponse.body.token;
-    businessUserId = businessResponse.body.user._id;
 
     // Create admin user manually
     const admin = new User(adminUser);
@@ -93,7 +90,6 @@ describe('Cards API Tests', () => {
       .post('/api/auth/login')
       .send({ email: adminUser.email, password: adminUser.password });
     adminToken = adminLogin.body.token;
-    adminUserId = adminLogin.body.user._id;
   });
 
   afterAll(async () => {
@@ -125,7 +121,7 @@ describe('Cards API Tests', () => {
         .send(testCard)
         .expect(403);
 
-      expect(response.body.message).toContain('Business access required');
+      expect(response.body.message).toContain('Business account required');
     });
 
     it('should not create card without authentication', async () => {
@@ -171,7 +167,7 @@ describe('Cards API Tests', () => {
         .post('/api/cards')
         .set('Authorization', `Bearer ${businessToken}`)
         .send(testCard);
-      cardId = cardResponse.body.card._id;
+      cardId = cardResponse.body._id || cardResponse.body.card?._id;
     });
 
     it('should get card by ID', async () => {

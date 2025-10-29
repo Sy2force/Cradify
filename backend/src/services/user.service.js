@@ -1,10 +1,8 @@
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
-const Card = require('../models/card.model');
 const config = require('../config');
-const ValidationHelper = require('../helpers/validationHelper');
-const { ERROR_MESSAGES, SUCCESS_MESSAGES } = require('../constants');
+const { ERROR_MESSAGES } = require('../constants');
+const { validateInput, cleanUserData } = require('../utils/validationHelper');
 
 class UserService {
   /**
@@ -14,8 +12,8 @@ class UserService {
    */
   async register(userData) {
     // Clean and validate user data
-    const cleanedData = ValidationHelper.cleanUserData(userData);
-    const validation = ValidationHelper.validateUserData(cleanedData);
+    const cleanedData = cleanUserData(userData);
+    const validation = validateInput(cleanedData);
     
     if (!validation.isValid) {
       throw new Error(validation.errors.join(', '));
@@ -67,12 +65,16 @@ class UserService {
       // Find user
       const user = await User.findOne({ email: email.toLowerCase() });
       if (!user) {
-        throw new Error(ERROR_MESSAGES.AUTH.INVALID_CREDENTIALS);
+        const error = new Error(ERROR_MESSAGES.AUTH.INVALID_CREDENTIALS);
+        error.statusCode = 400;
+        throw error;
       }
 
       // Check if account is locked
       if (user.isLocked()) {
-        throw new Error(ERROR_MESSAGES.USER.ACCOUNT_LOCKED);
+        const error = new Error(ERROR_MESSAGES.USER.ACCOUNT_LOCKED);
+        error.statusCode = 400;
+        throw error;
       }
 
       // Validate password
@@ -81,9 +83,12 @@ class UserService {
         try {
           await user.incLoginAttempts();
         } catch (updateError) {
-          console.warn('Failed to update login attempts:', updateError.message);
+          // Log warning but don't fail the login process
         }
-        throw new Error(ERROR_MESSAGES.AUTH.INVALID_CREDENTIALS);
+        // Create a proper validation error instead of generic error
+        const error = new Error(ERROR_MESSAGES.AUTH.INVALID_CREDENTIALS);
+        error.statusCode = 400;
+        throw error;
       }
 
       // Reset login attempts on successful login
@@ -92,7 +97,6 @@ class UserService {
           await user.resetLoginAttempts();
         } catch (updateError) {
           // Log but don't fail the login
-          console.warn('Failed to reset login attempts:', updateError.message);
         }
       }
 

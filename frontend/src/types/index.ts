@@ -41,6 +41,8 @@ export interface Card {
     url: string;
     alt: string;
   };
+  imageUrl?: string; // Legacy field for form compatibility
+  imageAlt?: string; // Legacy field for form compatibility
   address: {
     country: string;
     city: string;
@@ -50,10 +52,10 @@ export interface Card {
     zip: number;
   };
   bizNumber: number;
-  likes: string[];
+  likes: string[]; // User IDs who liked this card
   user_id: string | User;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string; // Optional, may not be present from backend
 }
 
 // Types pour l'authentification

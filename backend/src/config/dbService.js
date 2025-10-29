@@ -41,7 +41,6 @@ class DatabaseService {
       maxPoolSize: 10,
       minPoolSize: 5,
       maxIdleTimeMS: 30000,
-      serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000
     };
     return options;
