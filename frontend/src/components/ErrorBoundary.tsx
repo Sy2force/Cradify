@@ -4,7 +4,7 @@
  * Description: Composant Error Boundary avec monitoring et récupération automatique
  */
 
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react';
 import { monitoring } from '../utils/monitoring';
 
@@ -41,7 +41,8 @@ export class ErrorBoundary extends Component<Props, State> {
   static getDerivedStateFromError(error: Error): Partial<State> {
     return {
       hasError: true,
-      error
+      error,
+      retryCount: 0
     };
   }
 
@@ -246,22 +247,5 @@ Veuillez décrire ce que vous faisiez quand l'erreur s'est produite:
   }
 }
 
-/**
- * HOC pour wrapper automatiquement les composants avec ErrorBoundary
- */
-export const withErrorBoundary = <P extends object>(
-  Component: React.ComponentType<P>,
-  errorBoundaryProps?: Partial<Props>
-) => {
-  const WrappedComponent = (props: P) => (
-    <ErrorBoundary {...errorBoundaryProps}>
-      <Component {...props} />
-    </ErrorBoundary>
-  );
-
-  WrappedComponent.displayName = `withErrorBoundary(${Component.displayName || Component.name})`;
-  
-  return WrappedComponent;
-};
 
 export default ErrorBoundary;
