@@ -4,8 +4,8 @@ const jwt = require('jsonwebtoken');
 const app = require('../src/app');
 const User = require('../src/models/user.model');
 
-// Set test JWT_SECRET if not provided
-process.env.JWT_SECRET = process.env.JWT_SECRET || 'test_jwt_secret_for_testing_purposes_only_minimum_32_characters_required';
+// Set test JWT_SECRET to match the default in config
+process.env.JWT_SECRET = 'cardify_super_secret_jwt_key_2024_exam_project_secure_token_generator_32_chars';
 process.env.NODE_ENV = 'test';
 
 // Test database connection
@@ -145,7 +145,7 @@ describe('Middlewares Tests', () => {
 
       it('should reject expired token', async () => {
         const expiredToken = jwt.sign(
-          { userId: testUser._id, email: testUser.email },
+          { _id: testUser._id, email: testUser.email },
           process.env.JWT_SECRET,
           { expiresIn: '-1s' }
         );

@@ -5,7 +5,7 @@ const User = require('../src/models/user.model');
 const Card = require('../src/models/card.model');
 
 // Set test environment
-process.env.JWT_SECRET = process.env.JWT_SECRET || 'test_jwt_secret_for_testing_purposes_only_minimum_32_characters_required';
+process.env.JWT_SECRET = 'cardify_super_secret_jwt_key_2024_exam_project_secure_token_generator_32_chars';
 process.env.NODE_ENV = 'test';
 
 const TEST_DB_URI = process.env.MONGODB_TEST_URI || 'mongodb://localhost:27017/cardify_test';
