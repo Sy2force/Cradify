@@ -6,6 +6,7 @@
 
 import React, { useState, useRef, useEffect, ReactNode } from 'react';
 import { Loader2 } from 'lucide-react';
+import styles from './LazyLoadWrapper.module.css';
 
 interface LazyLoadWrapperProps {
   children: ReactNode;
@@ -15,7 +16,7 @@ interface LazyLoadWrapperProps {
   triggerOnce?: boolean;
   onLoad?: () => void;
   className?: string;
-  minHeight?: string;
+  minHeight?: number;
 }
 
 const LazyLoadWrapper: React.FC<LazyLoadWrapperProps> = ({
@@ -26,11 +27,30 @@ const LazyLoadWrapper: React.FC<LazyLoadWrapperProps> = ({
   triggerOnce = true,
   onLoad,
   className = '',
-  minHeight = '200px'
+  minHeight = 200
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const elementRef = useRef<HTMLDivElement>(null);
+
+  // Détecter le mode sombre
+  useEffect(() => {
+    const checkDarkMode = () => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    };
+    
+    checkDarkMode();
+    
+    // Observer les changements de classe sur l'élément html
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+    
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const element = elementRef.current;
@@ -65,7 +85,6 @@ const LazyLoadWrapper: React.FC<LazyLoadWrapperProps> = ({
 
   useEffect(() => {
     if (isVisible && !isLoaded) {
-      // Simuler un délai de chargement pour les animations
       const timer = setTimeout(() => {
         setIsLoaded(true);
       }, 100);
@@ -76,12 +95,14 @@ const LazyLoadWrapper: React.FC<LazyLoadWrapperProps> = ({
 
   const defaultFallback = (
     <div 
-      className="flex items-center justify-center bg-gray-50 dark:bg-gray-800 rounded-lg"
-      style={{ minHeight }}
+      className={`${styles.fallbackContainer} ${isDarkMode ? styles.dark : ''}`}
+      style={{ minHeight: `${minHeight}px` }}
     >
-      <div className="text-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500 mx-auto mb-2" />
-        <p className="text-sm text-gray-600 dark:text-gray-400">Chargement...</p>
+      <div className={styles.fallbackContent}>
+        <Loader2 className={styles.fallbackSpinner} />
+        <p className={`${styles.fallbackText} ${isDarkMode ? styles.dark : ''}`}>
+          Chargement...
+        </p>
       </div>
     </div>
   );
@@ -89,11 +110,11 @@ const LazyLoadWrapper: React.FC<LazyLoadWrapperProps> = ({
   return (
     <div 
       ref={elementRef}
-      className={`lazy-load-wrapper ${className}`}
-      style={{ minHeight: isVisible ? 'auto' : minHeight }}
+      className={`${styles.lazyLoadWrapper} ${className}`}
+      style={{ minHeight: isVisible ? 'auto' : `${minHeight}px` }}
     >
       {isVisible ? (
-        <div className={`transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+        <div className={`${styles.contentWrapper} ${isLoaded ? styles.contentVisible : styles.contentHidden}`}>
           {children}
         </div>
       ) : (

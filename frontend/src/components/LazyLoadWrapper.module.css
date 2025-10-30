@@ -1,0 +1,80 @@
+/**
+ * 🔄 Lazy Load Wrapper Styles - Cardify
+ * Auteur: Shaya Coca
+ * Description: Styles CSS pour le composant LazyLoadWrapper
+ */
+
+.lazyLoadWrapper {
+  transition: min-height 0.3s ease;
+}
+
+.fallbackContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  min-height: 200px;
+}
+
+.fallbackContainer.dark {
+  background-color: #1f2937;
+}
+
+.fallbackContent {
+  text-align: center;
+}
+
+.fallbackSpinner {
+  width: 2rem;
+  height: 2rem;
+  animation: spin 1s linear infinite;
+  color: #3b82f6;
+  margin: 0 auto 0.5rem;
+}
+
+.fallbackText {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.fallbackText.dark {
+  color: #9ca3af;
+}
+
+.contentWrapper {
+  transition: opacity 0.3s ease;
+}
+
+.contentVisible {
+  opacity: 1;
+}
+
+.contentHidden {
+  opacity: 0;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .fallbackContainer {
+    min-height: 150px;
+  }
+  
+  .fallbackSpinner {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  
+  .fallbackText {
+    font-size: 0.75rem;
+  }
+}
