@@ -96,7 +96,7 @@ const LazyLoadWrapper: React.FC<LazyLoadWrapperProps> = ({
   const defaultFallback = (
     <div 
       className={`${styles.fallbackContainer} ${isDarkMode ? styles.dark : ''}`}
-      style={{ minHeight: `${minHeight}px` }}
+      style={{ '--min-height': `${minHeight}px` } as React.CSSProperties}
     >
       <div className={styles.fallbackContent}>
         <Loader2 className={styles.fallbackSpinner} />
@@ -111,7 +111,8 @@ const LazyLoadWrapper: React.FC<LazyLoadWrapperProps> = ({
     <div 
       ref={elementRef}
       className={`${styles.lazyLoadWrapper} ${className}`}
-      style={{ minHeight: isVisible ? 'auto' : `${minHeight}px` }}
+      data-visible={isVisible}
+      style={{ '--min-height': `${minHeight}px`, '--min-height-mobile': `${Math.max(150, minHeight * 0.75)}px` } as React.CSSProperties}
     >
       {isVisible ? (
         <div className={`${styles.contentWrapper} ${isLoaded ? styles.contentVisible : styles.contentHidden}`}>

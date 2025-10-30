@@ -8,13 +8,21 @@
   transition: min-height 0.3s ease;
 }
 
+.lazyLoadWrapper[data-visible="false"] {
+  min-height: var(--min-height, 200px);
+}
+
+.lazyLoadWrapper[data-visible="true"] {
+  min-height: 0;
+}
+
 .fallbackContainer {
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: #f9fafb;
   border-radius: 0.5rem;
-  min-height: 200px;
+  min-height: var(--min-height, 200px);
 }
 
 .fallbackContainer.dark {
@@ -66,7 +74,11 @@
 /* Responsive adjustments */
 @media (max-width: 640px) {
   .fallbackContainer {
-    min-height: 150px;
+    min-height: var(--min-height-mobile, 150px);
+  }
+  
+  .lazyLoadWrapper[data-visible="false"] {
+    min-height: var(--min-height-mobile, 150px);
   }
   
   .fallbackSpinner {
