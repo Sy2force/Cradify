@@ -6,10 +6,11 @@
 
 .lazyLoadWrapper {
   transition: min-height 0.3s ease;
+  min-height: 200px;
 }
 
 .lazyLoadWrapper[data-visible="false"] {
-  min-height: var(--min-height, 200px);
+  min-height: 200px;
 }
 
 .lazyLoadWrapper[data-visible="true"] {

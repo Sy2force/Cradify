@@ -4,7 +4,7 @@
  * Description: Composant wrapper pour le lazy loading intelligent avec Intersection Observer
  */
 
-import React, { useState, useRef, useEffect, ReactNode } from 'react';
+import React, { useState, useEffect, useRef, ReactNode } from 'react';
 import { Loader2 } from 'lucide-react';
 import styles from './LazyLoadWrapper.module.css';
 
@@ -27,7 +27,7 @@ const LazyLoadWrapper: React.FC<LazyLoadWrapperProps> = ({
   triggerOnce = true,
   onLoad,
   className = '',
-  minHeight = 200
+  minHeight: _minHeight = 200
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -96,7 +96,6 @@ const LazyLoadWrapper: React.FC<LazyLoadWrapperProps> = ({
   const defaultFallback = (
     <div 
       className={`${styles.fallbackContainer} ${isDarkMode ? styles.dark : ''}`}
-      style={{ '--min-height': `${minHeight}px` } as React.CSSProperties}
     >
       <div className={styles.fallbackContent}>
         <Loader2 className={styles.fallbackSpinner} />
@@ -112,7 +111,6 @@ const LazyLoadWrapper: React.FC<LazyLoadWrapperProps> = ({
       ref={elementRef}
       className={`${styles.lazyLoadWrapper} ${className}`}
       data-visible={isVisible}
-      style={{ '--min-height': `${minHeight}px`, '--min-height-mobile': `${Math.max(150, minHeight * 0.75)}px` } as React.CSSProperties}
     >
       {isVisible ? (
         <div className={`${styles.contentWrapper} ${isLoaded ? styles.contentVisible : styles.contentHidden}`}>
