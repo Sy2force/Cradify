@@ -79,8 +79,6 @@ export class ErrorMonitor {
         message: event.message,
         stack: event.error?.stack,
         url: event.filename || window.location.href,
-        line: event.lineno,
-        column: event.colno
       });
     });
 

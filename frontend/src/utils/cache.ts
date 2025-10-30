@@ -38,6 +38,13 @@ export class MemoryCache<T = any> {
   private cache = new Map<string, CacheEntry<T>>();
   private stats = { hits: 0, misses: 0 };
   private maxSize: number; // Used for memory limit calculations
+  
+  /**
+   * Obtenir la taille maximale configurée
+   */
+  getMaxSize(): number {
+    return this.maxSize;
+  }
   private maxEntries: number;
   private defaultTtl: number;
 
@@ -221,8 +228,9 @@ export class PersistentCache<T = any> extends MemoryCache<T> {
       if (stored) {
         const data = JSON.parse(stored);
         for (const [key, entry] of Object.entries(data)) {
-          if (Date.now() < (entry as CacheEntry<T>).expiry) {
-            this.cache.set(key, entry as CacheEntry<T>);
+          const cacheEntry = entry as CacheEntry<T>;
+          if (Date.now() < cacheEntry.expiry) {
+            this.set(key, cacheEntry.data, { ttl: cacheEntry.expiry - Date.now(), tags: cacheEntry.tags });
           }
         }
       }
@@ -236,7 +244,13 @@ export class PersistentCache<T = any> extends MemoryCache<T> {
    */
   private saveToStorage(): void {
     try {
-      const data = Object.fromEntries(this.cache.entries());
+      const data: Record<string, any> = {};
+      this.keys().forEach(key => {
+        const entry = this.get(key);
+        if (entry !== null) {
+          data[key] = entry;
+        }
+      });
       localStorage.setItem(this.storageKey, JSON.stringify(data));
     } catch (error) {
       console.warn('Erreur sauvegarde cache persistant:', error);

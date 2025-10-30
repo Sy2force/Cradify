@@ -4,18 +4,22 @@
  * Description: Composant React pour afficher les métriques de performance en temps réel
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Activity, Zap, Database, Clock, TrendingUp, AlertTriangle } from 'lucide-react';
 import { usePerformance } from '../hooks/usePerformance';
 
 interface PerformanceMonitorProps {
+  className?: string;
   showDetails?: boolean;
+  onMetricsUpdate?: (metrics: any) => void;
   position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
   minimized?: boolean;
 }
 
 const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
+  className = '',
   showDetails = false,
+  onMetricsUpdate,
   position = 'bottom-right',
   minimized = false
 }) => {
@@ -32,11 +36,14 @@ const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
     isLoading
   } = usePerformance();
 
-  const positionClasses = {
-    'top-left': 'top-4 left-4',
-    'top-right': 'top-4 right-4',
-    'bottom-left': 'bottom-4 left-4',
-    'bottom-right': 'bottom-4 right-4'
+  const getPositionClasses = (pos: string) => {
+    const classes = {
+      'top-left': 'fixed top-4 left-4 z-50',
+      'top-right': 'fixed top-4 right-4 z-50',
+      'bottom-left': 'fixed bottom-4 left-4 z-50',
+      'bottom-right': 'fixed bottom-4 right-4 z-50'
+    };
+    return classes[pos as keyof typeof classes] || classes['bottom-right'];
   };
 
   const getScoreColor = (score: number) => {
@@ -65,7 +72,7 @@ const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
 
   if (isLoading) {
     return (
-      <div className={`fixed ${positionClasses[position]} z-50`}>
+      <div className={`performance-monitor ${getPositionClasses(position)} ${className}`}>
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 border">
           <div className="flex items-center space-x-2">
             <Activity className="w-4 h-4 animate-pulse" />
@@ -76,8 +83,15 @@ const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
     );
   }
 
+  onMetricsUpdate?.({
+    ...metrics,
+    memoryUsage,
+    cacheHitRate,
+    renderCount: 0
+  });
+
   return (
-    <div className={`fixed ${positionClasses[position]} z-50`}>
+    <div className={`performance-monitor ${getPositionClasses(position)} ${className}`}>
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
         {/* Header */}
         <div 
@@ -165,7 +179,7 @@ const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
             </div>
 
             {/* Métriques avancées */}
-            {showAdvanced && (
+            {(showDetails || showAdvanced) && (
               <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
                 <div className="space-y-2">
                   {metrics?.fid && (
