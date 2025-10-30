@@ -76,7 +76,11 @@ jspm_packages/
 
 # Gatsby files
 .cache/
-public
+# public - Allow PWA files
+public/*
+!public/manifest.json
+!public/sw.js
+!public/icons/
 
 # Storybook build outputs
 .out
