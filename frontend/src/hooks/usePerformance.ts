@@ -16,7 +16,6 @@ import {
 interface UsePerformanceOptions {
   enableMetrics?: boolean;
   enableResourceAnalysis?: boolean;
-  cacheSize?: number;
   debounceDelay?: number;
 }
 
@@ -32,7 +31,6 @@ export const usePerformance = (options: UsePerformanceOptions = {}) => {
   const {
     enableMetrics = true,
     enableResourceAnalysis = true,
-    cacheSize = 100,
     debounceDelay = 300
   } = options;
 
@@ -44,7 +42,7 @@ export const usePerformance = (options: UsePerformanceOptions = {}) => {
     cacheHitRate: 0
   });
 
-  const cache = useRef(new MemoryCache(cacheSize));
+  const cache = useRef(new MemoryCache<any>());
   const cacheStats = useRef({ hits: 0, misses: 0 });
 
   // Mesurer les métriques de performance
@@ -90,19 +88,19 @@ export const usePerformance = (options: UsePerformanceOptions = {}) => {
   }, []);
 
   // Version debounced des fonctions
-  const debouncedAnalyzeResources = useCallback(
-    debounce(analyzeResources, debounceDelay),
-    [analyzeResources, debounceDelay]
-  );
+  const debouncedAnalyzeResources = useCallback(() => {
+    const debouncedFn = debounce(analyzeResources, debounceDelay);
+    return debouncedFn();
+  }, [analyzeResources, debounceDelay]);
 
-  const debouncedMonitorMemory = useCallback(
-    debounce(monitorMemory, debounceDelay),
-    [monitorMemory, debounceDelay]
-  );
+  const debouncedMonitorMemory = useCallback(() => {
+    const debouncedFn = debounce(monitorMemory, debounceDelay);
+    return debouncedFn();
+  }, [monitorMemory, debounceDelay]);
 
   // Cache avec statistiques
-  const getCachedData = useCallback(<T>(key: string): T | null => {
-    const data = cache.current.get<T>(key);
+  const getCachedData = useCallback(<T = any>(key: string): T | null => {
+    const data = cache.current.get(key) as T | null;
     if (data) {
       cacheStats.current.hits++;
     } else {
@@ -112,7 +110,7 @@ export const usePerformance = (options: UsePerformanceOptions = {}) => {
     return data;
   }, [updateCacheStats]);
 
-  const setCachedData = useCallback(<T>(key: string, data: T, ttl?: number): void => {
+  const setCachedData = useCallback(<T = any>(key: string, data: T, ttl?: number): void => {
     cache.current.set(key, data, ttl);
   }, []);
 

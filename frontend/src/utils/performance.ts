@@ -97,8 +97,8 @@ export const measureWebVitals = (): Promise<PerformanceMetrics> => {
     // First Input Delay
     new PerformanceObserver((entryList) => {
       const entries = entryList.getEntries();
-      const firstEntry = entries[0];
-      if (firstEntry) {
+      const firstEntry = entries[0] as PerformanceEventTiming;
+      if (firstEntry && 'processingStart' in firstEntry) {
         metrics.fid = firstEntry.processingStart - firstEntry.startTime;
       }
     }).observe({ entryTypes: ['first-input'] });
