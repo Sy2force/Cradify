@@ -37,12 +37,12 @@ export interface CacheStats {
 export class MemoryCache<T = any> {
   private cache = new Map<string, CacheEntry<T>>();
   private stats = { hits: 0, misses: 0 };
-  private maxSize: number;
+  private maxSize: number; // Used for memory limit calculations
   private maxEntries: number;
   private defaultTtl: number;
 
   constructor(options: CacheOptions = {}) {
-    this.maxSize = options.maxSize || 10 * 1024 * 1024; // 10MB
+    this.maxSize = options.maxSize || 10 * 1024 * 1024; // Store for potential future memory management
     this.maxEntries = options.maxEntries || 1000;
     this.defaultTtl = options.ttl || 5 * 60 * 1000; // 5 minutes
   }
@@ -68,6 +68,16 @@ export class MemoryCache<T = any> {
         this.cache.delete(key);
       }
     }
+  }
+
+  getTags(): string[] {
+    const tags = new Set<string>();
+    for (const [, item] of this.cache.entries()) {
+      if (item.tags) {
+        item.tags.forEach((tag: string) => tags.add(tag));
+      }
+    }
+    return Array.from(tags);
   }
 
   /**
@@ -166,18 +176,12 @@ export class MemoryCache<T = any> {
    * Obtenir les statistiques
    */
   getStats(): CacheStats {
-    const entries = this.cache.size;
-    const size = Array.from(this.cache.values())
-      .reduce((total, entry) => total + entry.size, 0);
-    const total = this.stats.hits + this.stats.misses;
-    const hitRate = total > 0 ? (this.stats.hits / total) * 100 : 0;
-
     return {
+      size: this.cache.size,
       hits: this.stats.hits,
       misses: this.stats.misses,
-      entries,
-      size,
-      hitRate
+      hitRate: this.stats.hits / (this.stats.hits + this.stats.misses) || 0,
+      entries: this.cache.size
     };
   }
 
@@ -337,16 +341,20 @@ export const cacheManager = new CacheManager({
 /**
  * Décorateur pour mettre en cache les résultats de fonction
  */
-export function cached<T extends (...args: any[]) => any>(
-  cacheKey: string,
-  options: CacheOptions = {}
+export function withCache<T extends (...args: any[]) => any>(
+  _fn: T,
+  options: {
+    cache?: MemoryCache<any>;
+    keyGenerator?: (...args: Parameters<T>) => string;
+    ttl?: number;
+  } = {}
 ) {
-  return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
+  return function (_target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const method = descriptor.value;
-    const cache = cacheManager.getCache(cacheKey, options);
+    const cache = options.cache || cacheManager.getCache('default', options);
 
     descriptor.value = function (...args: Parameters<T>) {
-      const key = `${propertyName}-${JSON.stringify(args)}`;
+      const key = `${propertyKey}-${JSON.stringify(args)}`;
       
       let result = cache.get(key);
       if (result === null) {

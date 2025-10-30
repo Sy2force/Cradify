@@ -123,7 +123,7 @@ jobs:
         uses: snyk/actions/node@master
         continue-on-error: true
         env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN || 'dummy-token' }}
         with:
           args: --severity-threshold=high
 
@@ -156,7 +156,7 @@ jobs:
         working-directory: ./frontend
         run: npm run build
         env:
-          VITE_API_URL: ${{ secrets.STAGING_API_URL }}
+          VITE_API_URL: ${{ vars.STAGING_API_URL || 'https://api-staging.cardify.com' }}
           VITE_APP_ENV: staging
 
       - name: 🚀 Deploy to Netlify Staging
@@ -173,8 +173,8 @@ jobs:
         uses: johnbeynon/render-deploy-action@v0.0.8
         continue-on-error: true
         with:
-          service-id: ${{ secrets.RENDER_STAGING_SERVICE_ID }}
-          api-key: ${{ secrets.RENDER_API_KEY }}
+          service-id: ${{ secrets.RENDER_STAGING_SERVICE_ID || 'dummy-service-id' }}
+          api-key: ${{ secrets.RENDER_API_KEY || 'dummy-api-key' }}
 
   # 🌟 Deploy to Production
   deploy-production:
@@ -205,7 +205,7 @@ jobs:
         working-directory: ./frontend
         run: npm run build
         env:
-          VITE_API_URL: ${{ secrets.PRODUCTION_API_URL }}
+          VITE_API_URL: ${{ vars.PRODUCTION_API_URL || 'https://api.cardify.com' }}
           VITE_APP_ENV: production
 
       - name: 🚀 Deploy to Netlify Production
@@ -217,13 +217,13 @@ jobs:
           deploy-message: "Production deploy from GitHub Actions"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID || 'dummy-site-id' }}
 
       - name: 🚀 Deploy Backend to Render Production
         uses: johnbeynon/render-deploy-action@v0.0.8
         continue-on-error: true
         with:
-          service-id: ${{ secrets.RENDER_SERVICE_ID }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID || 'dummy-service-id' }}
           api-key: ${{ secrets.RENDER_API_KEY }}
 
       - name: 🏷️ Create Release Tag
@@ -275,7 +275,7 @@ jobs:
         run: lhci autorun
         continue-on-error: true
         env:
-          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN || github.token }}
 
   # 📢 Notifications
   notify:

@@ -388,13 +388,9 @@ export const useAuth = () => {
   const { data: user, loading, error, post, clearCache } = useApi('/api/auth/profile');
 
   const login = useCallback(async (credentials: { email: string; password: string }) => {
-    try {
-      const response = await post('/api/auth/login', credentials);
-      localStorage.setItem('cardify-auth-token', response.token);
-      return response;
-    } catch (error) {
-      throw error;
-    }
+    const response = await post('/api/auth/login', credentials);
+    localStorage.setItem('cardify-auth-token', response.token);
+    return response;
   }, [post]);
 
   const logout = useCallback(() => {

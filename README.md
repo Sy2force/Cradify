@@ -12,7 +12,7 @@
 
 - [Vue d'ensemble](#vue-densemble)
 - [Stack Technique](#stack-technique)
-- [Fonctionnalités](#fonctionnalités)
+- [🎯 Fonctionnalités](#fonctionnalités)
 - [Fonctionnalités Détaillées](#fonctionnalités-détaillées)
 - [Architecture du projet](#architecture-du-projet)
 - [Installation](#installation)
