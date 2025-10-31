@@ -26,16 +26,12 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: false,
     target: 'es2020',
-    minify: 'terser',
+    minify: 'esbuild',
     assetsInlineLimit: 0,
     rollupOptions: {
+      external: [],
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
-          'router': ['react-router-dom'],
-          'ui-vendor': ['lucide-react', 'react-hot-toast', 'clsx'],
-          'utils': ['axios'],
-        },
+        manualChunks: undefined,
         chunkFileNames: 'js/[name]-[hash].js',
         entryFileNames: 'js/[name]-[hash].js',
         assetFileNames: (assetInfo) => {
@@ -49,17 +45,6 @@ export default defineConfig({
           }
           return `assets/[name]-[hash][extname]`;
         },
-      },
-    },
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn'],
-        passes: 2,
-      },
-      mangle: {
-        safari10: true,
       },
     },
   },

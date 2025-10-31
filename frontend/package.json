@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "vite build",
     "build:prod": "npm run type-check && npm run lint && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext ts,tsx --fix",
@@ -13,6 +13,9 @@
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist",
     "start": "npm run build && npm run preview"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "axios": "^1.7.7",
@@ -40,6 +43,6 @@
     "tailwindcss": "^3.4.13",
     "terser": "^5.44.0",
     "typescript": "^5.6.2",
-    "vite": "^7.1.12"
+    "vite": "^5.4.0"
   }
 }
