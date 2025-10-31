@@ -1,0 +1,122 @@
+{
+  "cleanup_configuration": {
+    "description": "Configuration complète des fichiers à supprimer du projet Cardify",
+    "categories": {
+      "tests_backend": {
+        "description": "Fichiers de tests du backend",
+        "files": [
+          "backend/tests/auth.test.js",
+          "backend/tests/cards.test.js", 
+          "backend/tests/middlewares.test.js",
+          "backend/tests/simple.test.js"
+        ],
+        "directories": [
+          "backend/tests/"
+        ]
+      },
+      "tests_frontend": {
+        "description": "Fichiers de tests du frontend",
+        "files": [
+          "frontend/src/test/test-utils.tsx",
+          "frontend/src/utils/__tests__/cache.test.ts"
+        ],
+        "directories": [
+          "frontend/src/test/",
+          "frontend/src/utils/__tests__/"
+        ]
+      },
+      "ci_cd": {
+        "description": "Pipeline CI/CD et workflows GitHub",
+        "files": [
+          ".github/workflows/ci-cd.yml"
+        ],
+        "directories": [
+          ".github/workflows/",
+          ".github/"
+        ]
+      },
+      "documentation": {
+        "description": "Documentation technique et guides",
+        "files": [
+          "docs/TECHNICAL_GUIDE.md",
+          "docs/deployment/netlify.toml",
+          "docs/deployment/render.yaml",
+          "docs/deployment/vercel.json",
+          "docs/deployment/.vercelignore"
+        ],
+        "directories": [
+          "docs/deployment/",
+          "docs/"
+        ]
+      },
+      "scripts": {
+        "description": "Scripts de maintenance et utilitaires",
+        "files": [
+          "scripts/backup.js",
+          "scripts/create-admin.js",
+          "scripts/maintenance.sh"
+        ],
+        "directories": [
+          "scripts/"
+        ]
+      },
+      "advanced_features": {
+        "description": "Fonctionnalités avancées non essentielles",
+        "files": [
+          "frontend/src/components/ErrorBoundary.tsx",
+          "frontend/src/components/LazyLoadWrapper.tsx",
+          "frontend/src/components/LazyLoadWrapper.module.css",
+          "frontend/src/components/PerformanceMonitor.tsx",
+          "frontend/src/utils/analytics.ts",
+          "frontend/src/utils/cache.ts",
+          "frontend/src/utils/monitoring.ts",
+          "frontend/src/hooks/useApi.ts",
+          "frontend/src/hooks/useLocalStorage.ts",
+          "frontend/src/hooks/usePerformance.ts"
+        ]
+      },
+      "pwa": {
+        "description": "Configuration Progressive Web App",
+        "files": [
+          "frontend/public/manifest.json",
+          "frontend/public/sw.js"
+        ]
+      },
+      "config_files": {
+        "description": "Fichiers de configuration optionnels",
+        "files": [
+          "cardify.config.json",
+          "netlify.toml"
+        ]
+      }
+    },
+    "execution_order": [
+      "tests_backend",
+      "tests_frontend", 
+      "ci_cd",
+      "documentation",
+      "scripts",
+      "advanced_features",
+      "pwa",
+      "config_files"
+    ],
+    "safety_checks": {
+      "preserve_core_files": [
+        "package.json",
+        "package-lock.json",
+        "README.md",
+        ".gitignore",
+        ".env.example"
+      ],
+      "preserve_directories": [
+        "frontend/src/components/ui/",
+        "frontend/src/pages/",
+        "frontend/src/contexts/",
+        "backend/src/controllers/",
+        "backend/src/models/",
+        "backend/src/routes/",
+        "backend/src/middlewares/"
+      ]
+    }
+  }
+}
