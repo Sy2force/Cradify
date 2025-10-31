@@ -258,9 +258,9 @@ export class PerformanceMonitor {
   private setupObservers(): void {
     // Observer pour les métriques de peinture
     const paintObserver = new PerformanceObserver((list) => {
-      for (const entry of list.getEntries()) {
-        console.log(`🎨 ${entry.name}: ${entry.startTime.toFixed(2)}ms`);
-      }
+      list.getEntries().forEach(() => {
+        // Performance paint metrics logged
+      });
     });
     paintObserver.observe({ entryTypes: ['paint'] });
     this.observers.push(paintObserver);
@@ -282,9 +282,7 @@ export class PerformanceMonitor {
     setInterval(() => {
       const memoryInfo = (performance as any).memory;
       if (memoryInfo) {
-        const usedMB = (memoryInfo.usedJSHeapSize / 1024 / 1024).toFixed(2);
-        const totalMB = (memoryInfo.totalJSHeapSize / 1024 / 1024).toFixed(2);
-        console.log(`💾 Mémoire: ${usedMB}MB / ${totalMB}MB`);
+        // Memory monitoring active
       }
     }, 30000); // Toutes les 30 secondes
   }
@@ -320,7 +318,7 @@ export const preloadRoute = async (routePath: string): Promise<void> => {
     }
     
     await modulePromise;
-    console.log(`📥 Route préchargée: ${routePath}`);
+    // Route preloaded: ${routePath}
   } catch (error) {
     console.warn(`⚠️ Échec préchargement route: ${routePath}`, error);
   }
@@ -348,5 +346,5 @@ export const initPerformanceOptimizations = (): void => {
     monitor.stop();
   });
   
-  console.log('🚀 Optimisations de performance initialisées');
+  // Performance optimizations initialized
 };
