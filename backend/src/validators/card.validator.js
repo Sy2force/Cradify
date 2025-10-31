@@ -13,7 +13,7 @@ const createCardSchema = Joi.object({
   subtitle: Joi.string().min(2).max(256).required(),
   description: Joi.string().min(2).max(1024).required(),
   phone: Joi.string().pattern(patterns.phone).required().messages({
-    'string.pattern.base': 'Phone must be in format 0X-XXXXXXX'
+    'string.pattern.base': 'Phone must be in valid format'
   }),
   email: Joi.string().email().pattern(patterns.email).required().messages({
     'string.pattern.base': 'Please provide a valid email address'
@@ -41,7 +41,7 @@ const updateCardSchema = Joi.object({
   subtitle: Joi.string().min(2).max(256),
   description: Joi.string().min(2).max(1024),
   phone: Joi.string().pattern(/^[+]?[0-9\-\s()]{8,15}$/).messages({
-    'string.pattern.base': 'Phone must be in format 0X-XXXXXXX'
+    'string.pattern.base': 'Phone must be in valid format'
   }),
   email: Joi.string().email().pattern(patterns.email).messages({
     'string.pattern.base': 'Please provide a valid email address'

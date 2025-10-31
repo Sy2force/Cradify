@@ -16,7 +16,7 @@ const registerSchema = Joi.object({
     last: Joi.string().min(2).max(256).required()
   }).required(),
   phone: Joi.string().pattern(patterns.phone).required().messages({
-    'string.pattern.base': 'Phone must be in format 0X-XXXXXXX'
+    'string.pattern.base': 'Phone must be in valid format'
   }),
   email: Joi.string().email().pattern(patterns.email).required().messages({
     'string.pattern.base': 'Please provide a valid email address'
@@ -54,7 +54,7 @@ const updateSchema = Joi.object({
     last: Joi.string().min(2).max(256)
   }),
   phone: Joi.string().pattern(patterns.phone).messages({
-    'string.pattern.base': 'Phone must be in format 0X-XXXXXXX'
+    'string.pattern.base': 'Phone must be in valid format'
   }),
   image: Joi.object({
     url: Joi.string().uri().allow(''),

@@ -58,7 +58,7 @@ const ERROR_MESSAGES = {
     REQUIRED: 'This field is required',
     EMAIL_INVALID: 'Please provide a valid email address',
     PASSWORD_WEAK: 'Password must be at least 7 characters long',
-    PHONE_INVALID: 'Phone must be in format 0X-XXXXXXX',
+    PHONE_INVALID: 'Phone must be in valid format',
     NAME_LENGTH: `Name must be between ${FIELD_LIMITS.NAME.MIN} and ${FIELD_LIMITS.NAME.MAX} characters`,
     PASSWORD_LENGTH: `Password must be between ${FIELD_LIMITS.PASSWORD.MIN} and ${FIELD_LIMITS.PASSWORD.MAX} characters`
   },
